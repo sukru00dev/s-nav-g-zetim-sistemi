@@ -68,7 +68,7 @@ const publicPath = path.join(__dirname, 'public');
 app.use(express.static(publicPath));
 
 // API routes are defined above. Any non-API request falls back to serving React SPA index.html
-app.get('/:splat*', (req, res, next) => {
+app.get('/:splat(.*)', (req, res, next) => {
   if (req.path.startsWith('/api')) {
     return next();
   }
