@@ -62,9 +62,17 @@ app.get('/api/ping', (_req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Basic Route
-app.get('/', (_req, res) => {
-  res.json({ status: 'OK', service: 'LEUKOLION 2.0 API', version: '2.0.0' });
+// Serve static frontend files (Single-Server deployment)
+const path = require('path');
+const publicPath = path.join(__dirname, 'public');
+app.use(express.static(publicPath));
+
+// API routes are defined above. Any non-API request falls back to serving React SPA index.html
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.join(publicPath, 'index.html'));
 });
 
 app.listen(port, () => {
