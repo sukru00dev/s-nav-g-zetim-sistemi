@@ -12,7 +12,12 @@ const port = process.env.PORT || 5000;
 // CORS: Sadece izin verilen origin'e izin ver (production güvenliği)
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-  : ['http://localhost:5173', 'http://localhost:3000'];
+  : [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://140.245.7.158:5001',
+      'http://140.245.7.158:5000'
+    ];
 
 app.use(cors({
   origin: (origin, callback) => {
