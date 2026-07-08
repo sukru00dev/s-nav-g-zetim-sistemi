@@ -1,8 +1,8 @@
-const CACHE_NAME = 'leukolion-v2-cache';
+const CACHE_NAME = 'leukolion-v3-cache';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/favicon.svg',
+  '/favicon.png',
   '/manifest.json'
 ];
 
@@ -15,7 +15,18 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME) {
+            console.log('Clearing old cache:', cache);
+            return caches.delete(cache);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', event => {
