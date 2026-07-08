@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Production build directories
+frontend/dist/
+backend/public/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Large temp files
+*.zip
+*.pdf
+pdf_text.txt
+read_pdf.py
+stitch_extracted/

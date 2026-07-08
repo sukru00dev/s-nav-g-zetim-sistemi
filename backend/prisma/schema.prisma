@@ -1,0 +1,303 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =======================
+// İNSANLAR (PEOPLE)
+// =======================
+
+model Role {
+  id        Int      @id @default(autoincrement())
+  name_tr   String   @unique // Örn: Yönetici, Öğretmen, Öğrenci
+  name_en   String?
+  users     User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id          Int     @id @default(autoincrement())
+  tc_kimlik   String? @unique
+  username    String  @unique
+  email       String  @unique
+  password    String
+  forename    String?
+  surname     String?
+  yearOfBirth Int?
+  photo       String? // Profil fotoğrafı URL'i
+  isActive    Boolean @default(true)
+
+  // Kimlik Doğrulama ve Güvenlik
+  ip_address        String?
+  mac_address       String?
+  is_email_verified Boolean @default(false)
+  activation_token  String?
+
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id])
+
+  // Kurumsal Hiyerarşi Bağlantıları
+  universityId Int?
+  university   University? @relation(fields: [universityId], references: [id], onDelete: SetNull)
+
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  // Öğrenci veya Öğretmen olarak atandığı şubeler
+  branches Branch[] @relation("UserBranches")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  examSessions ExamSession[] // Öğrencinin girdiği sınav oturumları
+  exams        Exam[]
+}
+
+// =======================
+// LOKASYON HİYERARŞİSİ (YERLER)
+// =======================
+
+model Galaxy {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  systems System[]
+}
+
+model System {
+  id       Int     @id @default(autoincrement())
+  name     String
+  galaxyId Int
+  galaxy   Galaxy  @relation(fields: [galaxyId], references: [id], onDelete: Cascade)
+  worlds   World[]
+}
+
+model World {
+  id        Int       @id @default(autoincrement())
+  name      String
+  systemId  Int
+  system    System    @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  countries Country[]
+}
+
+model Country {
+  id      Int    @id @default(autoincrement())
+  name    String
+  worldId Int
+  world   World  @relation(fields: [worldId], references: [id], onDelete: Cascade)
+  cities  City[]
+}
+
+model City {
+  id           Int          @id @default(autoincrement())
+  name         String
+  countryId    Int
+  country      Country      @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  universities University[]
+}
+
+// =======================
+// YERLER VE KURUMLAR (EĞİTİM HİYERARŞİSİ)
+// =======================
+
+model University {
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  cityId  Int?
+  city    City?   @relation(fields: [cityId], references: [id], onDelete: SetNull)
+  unities Unity[]
+  users   User[]
+}
+
+model Unity {
+  id           Int          @id @default(autoincrement())
+  name         String
+  universityId Int
+  university   University   @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  departments  Department[]
+}
+
+model Department {
+  id       Int       @id @default(autoincrement())
+  name     String
+  unityId  Int
+  unity    Unity     @relation(fields: [unityId], references: [id], onDelete: Cascade)
+  programs Program[]
+  users    User[]
+}
+
+model Program {
+  id           Int        @id @default(autoincrement())
+  name         String
+  departmentId Int
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  courses      Course[]
+}
+
+// =======================
+// EĞİTİM VE ÖLÇME (ŞEYLER)
+// =======================
+
+model Course {
+  id        Int      @id @default(autoincrement())
+  name      String
+  code      String
+  programId Int
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  branches  Branch[]
+}
+
+model Branch {
+  id       Int    @id @default(autoincrement())
+  name     String
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  exams    Exam[]
+  users    User[] @relation("UserBranches")
+}
+
+model Exam {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?
+  startTime    DateTime
+  endTime      DateTime
+  durationMin  Int // Sınav süresi (dk)
+  isSupervised Boolean  @default(false) // Gözetimli mi?
+
+  branchId Int
+  branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  teacherId Int?
+  teacher   User? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+
+  questions    Question[]
+  createdAt    DateTime      @default(now())
+  examSessions ExamSession[]
+}
+
+model Question {
+  id      Int      @id @default(autoincrement())
+  text    String
+  type    String // Örn: MULTIPLE_CHOICE, OPEN_ENDED, CONDITIONAL (Şartlı Uçlu)
+  examId  Int
+  exam    Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  options Option[]
+  answers Answer[]
+
+  // Gözetim Biyometrisi İlişkileri
+  faces   Face[]
+  eyes    Eye[]
+  screens Screen[]
+  voices  Voice[]
+}
+
+model Option {
+  id         Int      @id @default(autoincrement())
+  text       String
+  isCorrect  Boolean  @default(false)
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers    Answer[]
+}
+
+// =======================
+// OTURUM VE GÖZETİM (LOGS & SESSION)
+// =======================
+
+model ExamSession {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  examId    Int
+  exam      Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+  startTime DateTime  @default(now())
+  endTime   DateTime?
+  status    String    @default("ONGOING") // ONGOING, COMPLETED, SUSPENDED
+  riskScore Int       @default(0)
+
+  logs    ExamLog[]
+  answers Answer[]
+
+  // Gözetim Biyometrisi
+  faces   Face[]
+  eyes    Eye[]
+  screens Screen[]
+  voices  Voice[]
+}
+
+model Answer {
+  id Int @id @default(autoincrement())
+
+  sessionId  Int
+  session    ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId Int
+  question   Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  optionId   Int?
+  option     Option?     @relation(fields: [optionId], references: [id], onDelete: SetNull)
+
+  textAnswer String?
+  createdAt  DateTime @default(now())
+}
+
+model ExamLog {
+  id          Int         @id @default(autoincrement())
+  sessionId   Int
+  session     ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  type        String
+  description String?
+  photoUrl    String?
+  timestamp   DateTime    @default(now())
+}
+
+// =======================
+// GÖZETİM BİYOMETRİSİ (OLAYLAR)
+// Soru bazlı mikro-gözetim kurgusu
+// =======================
+
+model Face {
+  id         Int         @id @default(autoincrement())
+  sessionId  Int
+  session    ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId Int
+  question   Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  photoUrl   String?
+  status     String // Örn: NO_FACE, MULTIPLE_FACES, NORMAL
+  timestamp  DateTime    @default(now())
+}
+
+model Eye {
+  id         Int         @id @default(autoincrement())
+  sessionId  Int
+  session    ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId Int
+  question   Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  status     String // Örn: LOOKING_AWAY, NORMAL
+  timestamp  DateTime    @default(now())
+}
+
+model Screen {
+  id            Int         @id @default(autoincrement())
+  sessionId     Int
+  session       ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId    Int
+  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  screenshotUrl String?
+  status        String // Örn: TAB_SWITCH, UNUSUAL_SOFTWARE
+  timestamp     DateTime    @default(now())
+}
+
+model Voice {
+  id         Int         @id @default(autoincrement())
+  sessionId  Int
+  session    ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId Int
+  question   Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  audioUrl   String?
+  status     String // Örn: SPEAKING, BACKGROUND_NOISE, SILENT
+  timestamp  DateTime    @default(now())
+}

@@ -1,0 +1,29 @@
+{
+  "short_name": "LEUKOLION",
+  "name": "Harran Üniversitesi Sınav Yönetim Sistemi",
+  "description": "Yapay Zeka Destekli Uzaktan Sınav ve Gözetim Sistemi",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#090d16",
+  "theme_color": "#002147",
+  "display": "standalone",
+  "orientation": "portrait"
+}

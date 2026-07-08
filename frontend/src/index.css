@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface-container-lowest: #ffffff;
+  --color-primary-container: #1c478c;
+  --color-inverse-on-surface: #f3f0f0;
+  --color-surface-container-low: #f6f3f2;
+  --color-error-container: #ffdad6;
+  --color-background: #fbf9f8;
+  --color-secondary-fixed-dim: #e9c400;
+  --color-on-error: #ffffff;
+  --color-error: #ba1a1a;
+  --color-surface-variant: #e4e2e1;
+  --color-on-primary-fixed: #001a42;
+  --color-surface-background: #F8FAFC;
+  --color-on-tertiary-container: #6bbfff;
+  --color-inverse-primary: #adc6ff;
+  --color-on-tertiary: #ffffff;
+  --color-outline-variant: #c3c6d2;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fcd400;
+  --color-tertiary-fixed: #cbe6ff;
+  --color-outline: #747782;
+  --color-on-tertiary-fixed-variant: #004b72;
+  --color-primary-fixed: #d8e2ff;
+  --color-on-tertiary-fixed: #001e31;
+  --color-error-alert: #D93025;
+  --color-on-primary-container: #97b8ff;
+  --color-inverse-surface: #303030;
+  --color-sidebar-navy: #002147;
+  --color-on-surface-variant: #434751;
+  --color-surface-container-highest: #e4e2e1;
+  --color-on-error-container: #93000a;
+  --color-primary: #00306e;
+  --color-on-background: #1b1c1c;
+  --color-on-primary: #ffffff;
+  --color-surface-bright: #fbf9f8;
+  --color-surface: #fbf9f8;
+  --color-on-secondary-fixed-variant: #544600;
+  --color-on-primary-fixed-variant: #19458a;
+  --color-surface-dim: #dcd9d9;
+  --color-on-secondary-container: #6e5c00;
+  --color-surface-container: #f0eded;
+  --color-on-secondary-fixed: #221b00;
+  --color-on-surface: #1b1c1c;
+  --color-success-safe: #2E7D32;
+  --color-tertiary-fixed-dim: #90cdff;
+  --color-surface-container-high: #eae8e7;
+  --color-secondary-fixed: #ffe16d;
+  --color-tertiary-container: #004d75;
+  --color-primary-fixed-dim: #adc6ff;
+  --color-surface-tint: #365da3;
+  --color-secondary: #705d00;
+  --color-warning-suspicious: #F57C00;
+  --color-tertiary: #003553;
+  
+  --spacing-stack-sm: 8px;
+  --spacing-stack-md: 16px;
+  --spacing-header-height: 64px;
+  --spacing-card-padding: 20px;
+  --spacing-margin-mobile: 16px;
+  --spacing-sidebar-width: 260px;
+  --spacing-gutter: 24px;
+}
+
+/* ── Global Base ─────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-background text-on-background antialiased font-sans;
+  font-family: 'Inter', 'Hanken Grotesk', system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+/* Scrollbar — Tüm scrollbar'ları premium hale getir */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #c3c6d2; border-radius: 100px; }
+::-webkit-scrollbar-thumb:hover { background: #747782; }
+
+/* Focus ring — Erişilebilirlik için tutarlı focus */
+:focus-visible {
+  outline: 2px solid #365da3;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Transitions — Daha yumuşak geçişler */
+button, a, input, select, textarea {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Loading animation ────────────────────────────────── */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out both;
+}
+
