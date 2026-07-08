@@ -85,8 +85,8 @@ export default function Login() {
       <div className="w-full max-w-md relative z-10">
         {/* Logo / Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-600 shadow-xl shadow-indigo-900/50 mb-4">
-            <span className="material-symbols-outlined text-white text-3xl">school</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-xl shadow-indigo-900/50 mb-4 p-2">
+            <img src="/favicon.png" alt="Harran Üniversitesi Logo" className="w-12 h-12 object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-white">Harran Üniversitesi</h1>
           <p className="text-slate-400 text-sm mt-1">Uzaktan Sınav Yönetim Sistemi</p>

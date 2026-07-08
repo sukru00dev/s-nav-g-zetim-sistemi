@@ -31,7 +31,7 @@ export default function StudentLayout() {
           <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg shrink-0">
             <img 
               className="w-10 h-10 object-contain" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPRrQgZ6jXhW7rPgBxPXg0Kim0j0ZjR0Ox58lq4omQPhPTJBFxYLJK7a97_htI-Im-t94KZlzjpLcGZ0gjiNAsjctqgUUTVKweEyXG67SbVfJKzAM6D2OSS5LI4Ceix1CdFSOkTzYLVySKh265lBh-STUfSO7UqIwUMqdVRMeLc4jcZe2AQtXYqgPjzDCioSy208e3io-nhSDLkvUxIAy2Ar1wjpMYI_hwR68_WoWlqZoNOlDFZQLOfKa1if9vI0Bviw" 
+              src="/favicon.png" 
               alt="Harran Üniversitesi Logo"
             />
           </div>
