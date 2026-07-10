@@ -113,9 +113,8 @@ exports.register = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Aktivasyon tokenı üretimi
-        const crypto = require('crypto');
-        const activationToken = crypto.randomBytes(32).toString('hex');
+        // Aktivasyon kodu üretimi (6 haneli sayı)
+        const activationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
         const newUser = await prisma.user.create({
             data: {
@@ -131,17 +130,15 @@ exports.register = async (req, res) => {
                 photo: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
                 isActive: false, // E-posta doğrulanana kadar inaktif
                 is_email_verified: false,
-                activation_token: activationToken
+                activation_token: activationCode
             }
         });
 
         // Aktivasyon maili gönderimi
-        const { sendActivationEmail } = require('../utils/emailService');
-        const frontendUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
-        const activationUrl = `${frontendUrl}/activate?token=${activationToken}`;
-        await sendActivationEmail(email, activationUrl);
+        const { sendActivationCodeEmail } = require('../utils/emailService');
+        await sendActivationCodeEmail(email, activationCode);
 
-        res.status(201).json({ message: 'Kayıt başarılı! Hesabınızı aktifleştirmek için e-posta adresinize gönderilen linke tıklayınız.', userId: newUser.id });
+        res.status(201).json({ message: 'Kayıt başarılı! E-posta adresinize gönderilen 6 haneli doğrulama kodunu girerek hesabınızı aktifleştirin.', userId: newUser.id });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Sunucu hatası' });
@@ -173,7 +170,7 @@ exports.login = async (req, res) => {
 
         // E-posta doğrulama kontrolü (Öğrenciler için zorunlu)
         if (user.role.name_tr === 'Öğrenci' && !user.is_email_verified) {
-            return res.status(403).json({ message: 'Lütfen e-posta adresinizi doğrulayın. Aktivasyon linki e-postanıza gönderilmiştir.' });
+            return res.status(403).json({ message: 'Lütfen e-posta adresinizi doğrulayın. Aktivasyon kodu e-postanıza gönderilmiştir.' });
         }
 
         // ÖNEMLİ GÜVENLİK DÜZELTMESİ: Önce şifreyi doğrula, SONRA IP/MAC güncelle
@@ -394,20 +391,23 @@ exports.resetPassword = async (req, res) => {
     }
 };
 
-exports.activateAccount = async (req, res) => {
+exports.verifyCode = async (req, res) => {
     try {
-        const { token } = req.query;
+        const { email, code } = req.body;
 
-        if (!token) {
-            return res.status(400).json({ message: 'Geçersiz aktivasyon talebi. Token bulunamadı.' });
+        if (!email || !code) {
+            return res.status(400).json({ message: 'E-posta ve doğrulama kodu gereklidir.' });
         }
 
         const user = await prisma.user.findFirst({
-            where: { activation_token: token }
+            where: { 
+                email: email.trim(),
+                activation_token: code.trim()
+            }
         });
 
         if (!user) {
-            return res.status(400).json({ message: 'Geçersiz veya süresi dolmuş aktivasyon linki.' });
+            return res.status(400).json({ message: 'Geçersiz veya hatalı doğrulama kodu.' });
         }
 
         await prisma.user.update({
@@ -421,7 +421,7 @@ exports.activateAccount = async (req, res) => {
 
         res.json({ message: 'Hesabınız başarıyla aktifleştirildi. Şimdi giriş yapabilirsiniz.' });
     } catch (error) {
-        console.error('activateAccount error:', error);
+        console.error('verifyCode error:', error);
         res.status(500).json({ message: 'Aktivasyon işlemi sırasında bir hata oluştu.' });
     }
 };

@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/auth/Login';
 import ResetPassword from './pages/auth/ResetPassword';
-import ActivateAccount from './pages/auth/ActivateAccount';
+import VerifyEmail from './pages/auth/VerifyEmail';
 import Register from './pages/auth/Register';
 
 // Layouts
@@ -54,7 +54,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/activate" element={<ActivateAccount />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/register" element={<Register />} />
       
       {/* 🛠️ Admin Paneli (Sistem Yöneticisi) */}

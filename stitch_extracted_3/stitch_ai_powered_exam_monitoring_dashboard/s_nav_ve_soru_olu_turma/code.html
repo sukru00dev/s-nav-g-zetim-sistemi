@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sınav ve Soru Oluşturma | Harran Üniversitesi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#ffffff",
+                    "primary-container": "#1c478c",
+                    "inverse-on-surface": "#f3f0f0",
+                    "surface-container-low": "#f6f3f2",
+                    "error-container": "#ffdad6",
+                    "background": "#fbf9f8",
+                    "secondary-fixed-dim": "#e9c400",
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e4e2e1",
+                    "on-primary-fixed": "#001a42",
+                    "surface-background": "#F8FAFC",
+                    "on-tertiary-container": "#6bbfff",
+                    "inverse-primary": "#adc6ff",
+                    "on-tertiary": "#ffffff",
+                    "outline-variant": "#c3c6d2",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#fcd400",
+                    "tertiary-fixed": "#cbe6ff",
+                    "outline": "#747782",
+                    "on-tertiary-fixed-variant": "#004b72",
+                    "primary-fixed": "#d8e2ff",
+                    "on-tertiary-fixed": "#001e31",
+                    "error-alert": "#D93025",
+                    "on-primary-container": "#97b8ff",
+                    "inverse-surface": "#303030",
+                    "sidebar-navy": "#002147",
+                    "on-surface-variant": "#434751",
+                    "surface-container-highest": "#e4e2e1",
+                    "on-error-container": "#93000a",
+                    "primary": "#00306e",
+                    "on-background": "#1b1c1c",
+                    "on-primary": "#ffffff",
+                    "surface-bright": "#fbf9f8",
+                    "surface": "#fbf9f8",
+                    "on-secondary-fixed-variant": "#544600",
+                    "on-primary-fixed-variant": "#19458a",
+                    "surface-dim": "#dcd9d9",
+                    "on-secondary-container": "#6e5c00",
+                    "surface-container": "#f0eded",
+                    "on-secondary-fixed": "#221b00",
+                    "on-surface": "#1b1c1c",
+                    "success-safe": "#2E7D32",
+                    "tertiary-fixed-dim": "#90cdff",
+                    "surface-container-high": "#eae8e7",
+                    "secondary-fixed": "#ffe16d",
+                    "tertiary-container": "#004d75",
+                    "primary-fixed-dim": "#adc6ff",
+                    "surface-tint": "#365da3",
+                    "secondary": "#705d00",
+                    "warning-suspicious": "#F57C00",
+                    "tertiary": "#003553"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "8px",
+                    "stack-md": "16px",
+                    "header-height": "64px",
+                    "card-padding": "20px",
+                    "margin-mobile": "16px",
+                    "sidebar-width": "260px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "headline-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "mono-data": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "mono-data": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .sidebar-item-active {
+            border-left: 4px solid #ffe16d;
+            background-color: #1c478c;
+            color: #ffffff;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c3c6d2; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #747782; }
+    </style>
+</head>
+<body class="bg-surface-background font-body-md text-on-surface">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-full w-sidebar-width bg-sidebar-navy flex flex-col z-50 shadow-xl overflow-y-auto">
+<div class="p-gutter flex flex-col items-center border-b border-white/10 pb-8">
+<div class="w-16 h-16 mb-4">
+<img alt="Harran Üniversitesi Logosu" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhswAJ9V-Wh_XVtvuyH9DMZDb7WI_D1WlEvy3VQbdF16Ci6YxRRrclxMpe9eIw_yxQvc5mAIEK1DpMm41Nujf2_RKmATHKb4SFojt0H5_A6FVRIghQIcE5DVkO8ZadPtOI-RB-Ua1EXuDS07M2VST1MimVh3i3vY7Ny9uSENvHhx9FHQiML_pMU7LYqcsvwB9b1JVmhnE2vLTMOJ9BaNMysZIiu0WVQBsayD3viLiC2BAvXUIvhGj2kqbRT6EKPZmM2g"/>
+</div>
+<h2 class="text-white font-headline-sm text-headline-sm text-center">Harran Üniversitesi</h2>
+<p class="text-surface-variant font-label-md text-label-md mt-1 opacity-70">Dünya Yöneticisi Paneli</p>
+</div>
+<nav class="flex-grow py-stack-md">
+<a class="flex items-center gap-stack-md text-surface-variant p-4 hover:bg-primary-container hover:text-white transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md">Ana Sayfa</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-4 hover:bg-primary-container hover:text-white transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="manage_accounts">manage_accounts</span>
+<span class="font-label-md">Birim/Rol Yönetimi</span>
+</a>
+<!-- Active Tab -->
+<a class="flex items-center gap-stack-md border-l-4 border-secondary-fixed bg-primary-container text-white p-4 scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="font-label-md">Sınav Yönetimi</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-4 hover:bg-primary-container hover:text-white transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="videocam">videocam</span>
+<span class="font-label-md">Canlı Gözetim</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-4 hover:bg-primary-container hover:text-white transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="gpp_bad">gpp_bad</span>
+<span class="font-label-md">Güvenlik İhlali</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-4 hover:bg-primary-container hover:text-white transition-all duration-200" href="#"><span class="material-symbols-outlined">person</span><span class="font-label-md">Kullanıcı İşlemleri</span></a><a class="flex items-center gap-stack-md text-surface-variant p-4 hover:bg-primary-container hover:text-white transition-all duration-200" href="#"><span class="material-symbols-outlined">assessment</span><span class="font-label-md">Raporlama</span></a><a class="flex items-center gap-stack-md text-surface-variant p-4 hover:bg-primary-container hover:text-white transition-all duration-200" href="#"><span class="material-symbols-outlined">support_agent</span><span class="font-label-md">Teknik Destek</span></a></nav>
+<div class="mt-auto border-t border-white/10 pt-4 pb-8">
+<a class="flex items-center gap-stack-md text-surface-variant p-4 hover:bg-primary-container hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md">Destek</span>
+</a>
+<a class="flex items-center gap-stack-md text-error p-4 hover:bg-error-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md">Oturumu Kapat</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-sidebar-width min-h-screen flex flex-col">
+<!-- Top App Bar -->
+<header class="h-header-height bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-40 px-gutter flex justify-between items-center shadow-sm">
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined text-primary" data-icon="edit_note">edit_note</span>
+<h1 class="font-headline-md text-headline-md text-primary">Sınav ve Soru Oluşturma</h1>
+</div>
+<div class="flex items-center gap-gutter">
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+</button>
+</div>
+<div class="flex items-center gap-3 border-l pl-gutter">
+<div class="text-right hidden md:block">
+<p class="font-label-md text-primary leading-none">Dünya Yöneticisi</p>
+<p class="text-xs text-on-surface-variant">Admin</p>
+</div>
+<img class="w-10 h-10 rounded-full border-2 border-primary-container object-cover" data-alt="A professional headshot of a middle-aged academic administrator in a dark navy suit, looking directly at the camera with a confident and friendly expression, set against a neutral, softly blurred academic office background with warm indoor lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvQD5l0Ow06NhnlGM0I7OVECh9r1HN81YtnwKLlJCSHDZyAZD8Du5ddEIdcRJzFlxTxsFjQKQHVxjv-JazlKzpZQbhN36ia-o916u52aTzcYF386yPt8N0UGJeEjA6SYnVW1gRzphDwbsVtOS2wAsF1Ow_N1Wrp68KPp71m4orqRYY6D9XmyXE2ycj6dY6gX-xIAOtt8ayDa942YJPRmT4Y8pBGRfDiG7adF3bgNlPWxku5aSekmld"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<section class="p-gutter space-y-gutter">
+<!-- Exam Info Section (Card Level 1) -->
+<div class="bg-white p-card-padding rounded-xl border border-outline-variant shadow-sm transition-all hover:shadow-md">
+<div class="flex items-center gap-stack-sm mb-6 border-b border-surface-container-low pb-4">
+<span class="material-symbols-outlined text-primary" data-icon="info">info</span>
+<h3 class="font-headline-sm text-headline-sm">Sınav Genel Bilgileri</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<div class="md:col-span-6 space-y-stack-sm">
+<label class="block font-label-md text-on-surface-variant">Sınav Başlığı</label>
+<input class="w-full h-12 px-4 rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Örn: Veri Yapıları Final Sınavı" type="text"/>
+</div>
+<div class="md:col-span-6 space-y-stack-sm">
+<label class="block font-label-md text-on-surface-variant">Şube Seçimi</label>
+<select class="w-full h-12 px-4 rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none bg-white">
+<option>Şube A - Dr. Öğr. Üyesi Ahmet Yılmaz</option>
+<option>Şube B - Doç. Dr. Elif Kaya</option>
+<option>Şube C - Arş. Gör. Can Demir</option>
+</select>
+</div>
+<div class="md:col-span-6 lg:col-span-3 space-y-stack-sm">
+<label class="block font-label-md text-on-surface-variant">Başlangıç Tarihi ve Saati</label>
+<input class="w-full h-12 px-4 rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" type="datetime-local"/>
+</div>
+<div class="md:col-span-6 lg:col-span-3 space-y-stack-sm">
+<label class="block font-label-md text-on-surface-variant">Bitiş Tarihi ve Saati</label>
+<input class="w-full h-12 px-4 rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" type="datetime-local"/>
+</div>
+<div class="md:col-span-12 lg:col-span-6 flex items-end gap-stack-md">
+<div class="flex-grow space-y-stack-sm">
+<label class="block font-label-md text-on-surface-variant">Sınav Süresi (Dakika)</label>
+<input class="w-full h-12 px-4 rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none" type="number" value="60"/>
+</div>
+<div class="pb-3 flex items-center gap-2">
+<input class="w-5 h-5 rounded text-primary border-outline-variant focus:ring-primary" id="proctor_ai" type="checkbox"/>
+<label class="font-label-md text-on-surface-variant" for="proctor_ai">AI Gözetmen Aktif</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Question Creation Canvas -->
+<div class="space-y-gutter" id="questions-container">
+<!-- Single Question Box (Repeatable Template) -->
+<div class="question-box bg-white p-card-padding rounded-xl border border-outline-variant shadow-sm group transition-all">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">1</div>
+<h3 class="font-headline-sm text-headline-sm">Soru İçeriği</h3>
+</div>
+<div class="flex gap-2">
+<button class="p-2 text-error hover:bg-error-container rounded-lg transition-colors" title="Soruyu Sil">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors" title="Soruyu Klonla">
+<span class="material-symbols-outlined" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left side: Question and Type -->
+<div class="lg:col-span-7 space-y-stack-md">
+<div class="space-y-stack-sm">
+<div class="flex justify-between items-center">
+<label class="block font-label-md text-on-surface-variant">Soru Metni</label>
+<div class="flex gap-2 text-on-surface-variant">
+<button class="material-symbols-outlined text-base hover:text-primary transition-colors" data-icon="format_bold">format_bold</button>
+<button class="material-symbols-outlined text-base hover:text-primary transition-colors" data-icon="format_italic">format_italic</button>
+<button class="material-symbols-outlined text-base hover:text-primary transition-colors" data-icon="image">image</button>
+<button class="material-symbols-outlined text-base hover:text-primary transition-colors" data-icon="functions">functions</button>
+</div>
+</div>
+<textarea class="w-full p-4 rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none resize-none" placeholder="Soru metnini buraya giriniz..." rows="6"></textarea>
+</div>
+<div class="grid grid-cols-2 gap-stack-md">
+<div class="space-y-stack-sm">
+<label class="block font-label-md text-on-surface-variant">Soru Türü</label>
+<select class="w-full h-12 px-4 rounded-lg border-outline-variant bg-surface-container-low transition-all outline-none">
+<option value="multi">Çoktan Seçmeli (Kapalı Uçlu)</option>
+<option value="open">Klasik (Açık Uçlu)</option>
+<option value="conditional">Şartlı Uçlu</option>
+</select>
+</div>
+<div class="space-y-stack-sm">
+<label class="block font-label-md text-on-surface-variant">Puan Değeri</label>
+<input class="w-full h-12 px-4 rounded-lg border-outline-variant outline-none focus:ring-2 focus:ring-primary/20" type="number" value="10"/>
+</div>
+</div>
+</div>
+<!-- Right side: Options (Dynamic) -->
+<div class="lg:col-span-5 space-y-stack-md border-l border-outline-variant pl-gutter">
+<label class="block font-label-md text-on-surface-variant">Seçenekler ve Doğru Cevap</label>
+<div class="space-y-3">
+<!-- Option A -->
+<div class="flex items-center gap-3 group/option">
+<input class="w-5 h-5 text-success-safe border-outline-variant focus:ring-success-safe" name="correct_1" type="radio"/>
+<div class="flex-grow relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-xs text-on-surface-variant">A</span>
+<input class="w-full h-11 pl-8 pr-4 rounded-lg border-outline-variant bg-white focus:border-success-safe transition-all outline-none" placeholder="Seçenek metni" type="text"/>
+</div>
+</div>
+<!-- Option B -->
+<div class="flex items-center gap-3 group/option">
+<input checked="" class="w-5 h-5 text-success-safe border-outline-variant focus:ring-success-safe" name="correct_1" type="radio"/>
+<div class="flex-grow relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-xs text-on-surface-variant">B</span>
+<input class="w-full h-11 pl-8 pr-4 rounded-lg border-outline-variant bg-white focus:border-success-safe border-success-safe ring-1 ring-success-safe transition-all outline-none" type="text" value="Binary Tree"/>
+</div>
+</div>
+<!-- Option C -->
+<div class="flex items-center gap-3 group/option">
+<input class="w-5 h-5 text-success-safe border-outline-variant focus:ring-success-safe" name="correct_1" type="radio"/>
+<div class="flex-grow relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-xs text-on-surface-variant">C</span>
+<input class="w-full h-11 pl-8 pr-4 rounded-lg border-outline-variant bg-white focus:border-success-safe transition-all outline-none" placeholder="Seçenek metni" type="text"/>
+</div>
+</div>
+<!-- Option D -->
+<div class="flex items-center gap-3 group/option">
+<input class="w-5 h-5 text-success-safe border-outline-variant focus:ring-success-safe" name="correct_1" type="radio"/>
+<div class="flex-grow relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-xs text-on-surface-variant">D</span>
+<input class="w-full h-11 pl-8 pr-4 rounded-lg border-outline-variant bg-white focus:border-success-safe transition-all outline-none" placeholder="Seçenek metni" type="text"/>
+</div>
+</div>
+</div>
+<button class="w-full py-2 border-2 border-dashed border-outline-variant rounded-lg text-on-surface-variant hover:text-primary hover:border-primary transition-all font-label-md flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                                Seçenek Ekle
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Global Actions -->
+<div class="sticky bottom-gutter bg-white/80 backdrop-blur-md p-card-padding rounded-xl border border-outline-variant shadow-lg flex flex-col md:flex-row justify-between items-center gap-stack-md z-30">
+<div class="flex items-center gap-stack-md text-on-surface-variant">
+<span class="font-label-md">Toplam Soru: 1</span>
+<span class="text-outline">|</span>
+<span class="font-label-md">Toplam Puan: 10/100</span>
+</div>
+<div class="flex gap-stack-md w-full md:w-auto">
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-gutter h-12 rounded-lg bg-surface-container-high text-on-surface font-label-md hover:bg-surface-container-highest transition-all" id="add-question-btn">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                        Yeni Soru Ekle
+                    </button>
+<button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-10 h-12 rounded-lg bg-primary text-white font-headline-sm hover:bg-primary-container transition-all shadow-md active:scale-95">
+<span class="material-symbols-outlined" data-icon="save">save</span>
+                        Sınavı Kaydet
+                    </button>
+</div>
+</div>
+</section>
+<!-- Footer / Credits -->
+<footer class="mt-auto p-gutter text-center border-t border-outline-variant text-on-surface-variant opacity-60">
+<p class="font-label-md">© 2024 Harran Üniversitesi Sınav Yönetim Sistemi. Tüm hakları saklıdır.</p>
+</footer>
+</main>
+<!-- Micro-interactions Script -->
+<script>
+        document.getElementById('add-question-btn').addEventListener('click', () => {
+            const container = document.getElementById('questions-container');
+            const questionCount = container.children.length + 1;
+            const newQuestion = container.children[0].cloneNode(true);
+            
+            // Update question number
+            newQuestion.querySelector('.bg-primary').textContent = questionCount;
+            // Update radio group name to keep them independent
+            const radios = newQuestion.querySelectorAll('input[type="radio"]');
+            radios.forEach(r => r.name = 'correct_' + questionCount);
+            
+            // Clear inputs
+            const inputs = newQuestion.querySelectorAll('input[type="text"], textarea');
+            inputs.forEach(i => i.value = '');
+            
+            // Animation
+            newQuestion.classList.add('opacity-0', 'translate-y-4');
+            container.appendChild(newQuestion);
+            setTimeout(() => {
+                newQuestion.classList.remove('opacity-0', 'translate-y-4');
+                newQuestion.classList.add('duration-500', 'ease-out');
+            }, 50);
+
+            // Scroll to new question
+            newQuestion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        // Delete functionality delegation
+        document.getElementById('questions-container').addEventListener('click', (e) => {
+            if (e.target.closest('[title="Soruyu Sil"]')) {
+                const box = e.target.closest('.question-box');
+                if (document.querySelectorAll('.question-box').length > 1) {
+                    box.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => box.remove(), 300);
+                } else {
+                    alert('En az bir soru bulunmalıdır.');
+                }
+            }
+        });
+    </script>
+</body></html>

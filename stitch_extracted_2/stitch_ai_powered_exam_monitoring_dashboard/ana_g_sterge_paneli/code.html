@@ -1,0 +1,533 @@
+<!DOCTYPE html><html class="light" lang="tr"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Harran Üniversitesi - Sınav Yönetim Paneli</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#1c478c",
+                        "inverse-on-surface": "#f3f0f0",
+                        "surface-container-low": "#f6f3f2",
+                        "error-container": "#ffdad6",
+                        "background": "#fbf9f8",
+                        "secondary-fixed-dim": "#e9c400",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e4e2e1",
+                        "on-primary-fixed": "#001a42",
+                        "surface-background": "#F8FAFC",
+                        "on-tertiary-container": "#6bbfff",
+                        "inverse-primary": "#adc6ff",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#c3c6d2",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fcd400",
+                        "tertiary-fixed": "#cbe6ff",
+                        "outline": "#747782",
+                        "on-tertiary-fixed-variant": "#004b72",
+                        "primary-fixed": "#d8e2ff",
+                        "on-tertiary-fixed": "#001e31",
+                        "error-alert": "#D93025",
+                        "on-primary-container": "#97b8ff",
+                        "inverse-surface": "#303030",
+                        "sidebar-navy": "#002147",
+                        "on-surface-variant": "#434751",
+                        "surface-container-highest": "#e4e2e1",
+                        "on-error-container": "#93000a",
+                        "primary": "#00306e",
+                        "on-background": "#1b1c1c",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#fbf9f8",
+                        "surface": "#fbf9f8",
+                        "on-secondary-fixed-variant": "#544600",
+                        "on-primary-fixed-variant": "#19458a",
+                        "surface-dim": "#dcd9d9",
+                        "on-secondary-container": "#6e5c00",
+                        "surface-container": "#f0eded",
+                        "on-secondary-fixed": "#221b00",
+                        "on-surface": "#1b1c1c",
+                        "success-safe": "#2E7D32",
+                        "tertiary-fixed-dim": "#90cdff",
+                        "surface-container-high": "#eae8e7",
+                        "secondary-fixed": "#ffe16d",
+                        "tertiary-container": "#004d75",
+                        "primary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#365da3",
+                        "secondary": "#705d00",
+                        "warning-suspicious": "#F57C00",
+                        "tertiary": "#003553"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "header-height": "64px",
+                        "card-padding": "20px",
+                        "margin-mobile": "16px",
+                        "sidebar-width": "260px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "mono-data": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "mono-data": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fbf9f8;
+            color: #1b1c1c;
+            overflow-x: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            user-select: none;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c3c6d2; border-radius: 10px; }
+        .stat-card-gradient {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-sidebar-width bg-sidebar-navy flex flex-col py-stack-md z-50 transition-all duration-300">
+<div class="px-6 mb-8 flex flex-col items-center">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-3 shadow-md overflow-hidden">
+<img class="w-12 h-12 object-contain" data-alt="Harran University official emblem logo, featuring yellow and green circular crest on a clean white background, high-resolution and professional university branding." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEndTQlTFaBKwiQzdNruWT91wPKSjEhRtElX8476BNN_b6_yaPYPdV2Azjd853gRPyTMgawW1ORbw9WeKdRbC-xJuK7S4EiCDvag8i9c8OsAR0WGlIrsrJk6dnu8MKASQT1sfjMHSPKmGJqd2B7-nJsJsjlOrZWH4_CjXbx23o9iq7CfBnPYosFPkTl2vOL-bvdK5iGAIl1DnCkzWNYDfA06olibZo8pa9OO_zhFgWY1JcY835N_qLFAzD1JwN5MGuLA">
+</div>
+<h1 class="text-headline-sm font-headline-sm text-surface-container-lowest text-center">Harran Üniversitesi</h1>
+<p class="text-label-md font-label-md text-on-primary-container opacity-80 mt-1 uppercase tracking-widest">Dünya Yöneticisi Paneli</p>
+</div>
+<nav class="flex-1 px-4 space-y-2 custom-scrollbar overflow-y-auto">
+<!-- Ana Sayfa (Active) -->
+<a class="flex items-center gap-stack-md border-l-4 border-secondary-fixed bg-primary-container text-white p-3 rounded-r-lg transition-all duration-200 scale-95 origin-left" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="text-label-md font-label-md">Ana Sayfa</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">manage_accounts</span>
+<span class="text-label-md font-label-md">Birim/Rol Yönetimi</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="text-label-md font-label-md">Sınav Yönetimi</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg relative" href="#">
+<span class="material-symbols-outlined">videocam</span>
+<span class="text-label-md font-label-md">Canlı Gözetim</span>
+<span class="absolute right-3 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">gpp_bad</span>
+<span class="text-label-md font-label-md">Güvenlik İhlali</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#"><span class="material-symbols-outlined">person</span><span class="text-label-md font-label-md">Kullanıcı İşlemleri</span></a><a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#"><span class="material-symbols-outlined">assessment</span><span class="text-label-md font-label-md">Raporlama</span></a><a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#"><span class="material-symbols-outlined">support_agent</span><span class="text-label-md font-label-md">Teknik Destek</span></a></nav>
+<div class="px-4 mt-auto border-t border-white/10 pt-4 space-y-2">
+<button class="w-full bg-secondary-container text-on-secondary-container py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">play_circle</span>
+                Sınavı Başlat
+            </button>
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-label-md font-label-md">Destek</span>
+</a>
+<a class="flex items-center gap-stack-md text-red-400 p-3 hover:bg-red-900/30 transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-label-md font-label-md">Oturumu Kapat</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="ml-sidebar-width flex-1 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="h-header-height sticky top-0 z-40 bg-surface-container-lowest dark:bg-inverse-surface border-b border-outline-variant shadow-sm px-gutter flex justify-between items-center w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer lg:hidden">menu</span>
+<div class="flex flex-col">
+<h2 class="text-headline-sm font-headline-sm text-primary">2025-2026 Eğitim Öğretim Yılı Yaz Dönemi</h2>
+<div class="flex gap-2 items-center text-label-md text-on-surface-variant opacity-70">
+<span class="">Panel</span>
+<span class="material-symbols-outlined text-[12px]">chevron_right</span>
+<span class="text-primary font-semibold">Ana Sayfa</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<!-- Search Bar -->
+<div class="relative hidden md:block w-72">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-body-md focus:ring-2 focus:ring-primary/20" placeholder="Öğrenci veya sınav ara..." type="text">
+</div>
+<!-- Navigation Icons -->
+<div class="flex items-center gap-4 text-on-surface-variant">
+<div class="relative cursor-pointer hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</div>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">settings</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">home</span>
+</div>
+<!-- Profile -->
+<div class="flex items-center gap-3 border-l pl-6 border-outline-variant">
+<div class="text-right hidden sm:block">
+<p class="text-label-md font-bold text-on-surface">ŞÜKRÜ BAŞ</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">230517036 • YÖNETİCİ</p>
+</div>
+<img class="w-10 h-10 rounded-full border-2 border-primary-container object-cover" data-alt="Close-up professional headshot of a male academic administrator, clean shaven with short hair, wearing a navy blue blazer, set against a blurred modern office background with soft lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwU-mgGRP7_YHjmsp2PYXDbLEQZYIffCWVXxXvHQLnPSkDvRqyqS2Ox5pSP2m9UFguHQR0BJcp1pVP-P6EJlytc63aJgz93jJlA6bh_N19GDaZSJZyvf5X8PjaIKCtIoBesdYkHChBAMTqH6YLP7CsfXWtZjmawnECU5TdJDE1aVIK_bhu0WZuB7_nbwfTSvAv5hIgDo5frHLzmp874811CUtAuOxY1VAFVeMMi4A3DydlHpuoMEWw">
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<div class="p-gutter space-y-stack-md flex-1">
+<!-- Information Banner -->
+<div class="bg-success-safe text-white px-6 py-4 rounded-xl shadow-md flex items-center justify-between animate-in fade-in duration-700">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">info</span>
+<p class="text-body-md"><span class="font-bold">Bilgilendirme:</span> 2025-2026 Eğitim Öğretim Yılı Bahar Dönemi Döneminde 7 Adet Onaylanmış ders kaydınız mevcut.</p>
+</div>
+<button class="hover:bg-white/20 p-1 rounded-full transition-colors">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Bento Stat Boxes - Inspired by image layout -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Stat 1: Active Exams -->
+<div class="bg-primary p-card-padding rounded-xl text-white shadow-lg flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-10 scale-150 group-hover:rotate-12 transition-transform duration-500">
+<span class="material-symbols-outlined text-[100px]">account_balance</span>
+</div>
+<div class="flex items-start justify-between relative z-10">
+<div class="p-3 bg-white/20 rounded-lg">
+<span class="material-symbols-outlined text-white">account_balance</span>
+</div>
+<span class="text-label-md bg-white/20 px-2 py-1 rounded">Canlı</span>
+</div>
+<div class="mt-8 relative z-10">
+<h3 class="text-label-md opacity-80 uppercase">Aktif Akademik Dönem</h3>
+<p class="text-headline-sm mt-1">2025-2026 Yaz Dönemi</p>
+</div>
+</div>
+<!-- Stat 2: Advisor -->
+<div class="bg-success-safe p-card-padding rounded-xl text-white shadow-lg flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-10 scale-150 group-hover:rotate-12 transition-transform duration-500">
+<span class="material-symbols-outlined text-[100px]">person</span>
+</div>
+<div class="flex items-start justify-between relative z-10">
+<div class="p-3 bg-white/20 rounded-lg">
+<span class="material-symbols-outlined text-white">person</span>
+</div>
+</div>
+<div class="mt-8 relative z-10">
+<h3 class="text-label-md opacity-80 uppercase">Danışman Bilgileri</h3>
+<p class="text-headline-sm mt-1">Arş.Gör. SONGÜL AKDAĞ</p>
+<a class="mt-2 flex items-center gap-1 text-[12px] hover:underline" href="#">
+                            Detay <span class="material-symbols-outlined text-[14px]">arrow_circle_right</span>
+</a>
+</div>
+</div>
+<!-- Stat 3: Education -->
+<div class="bg-[#039BE5] p-card-padding rounded-xl text-white shadow-lg flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-10 scale-150 group-hover:rotate-12 transition-transform duration-500">
+<span class="material-symbols-outlined text-[100px]">school</span>
+</div>
+<div class="flex items-start justify-between relative z-10">
+<div class="p-3 bg-white/20 rounded-lg">
+<span class="material-symbols-outlined text-white">school</span>
+</div>
+</div>
+<div class="mt-8 relative z-10">
+<h3 class="text-label-md opacity-80 uppercase">Öğrenim Bilgileri</h3>
+<p class="text-body-md font-bold truncate">MÜHENDİSLİK FAK./YAZILIM</p>
+<p class="text-[12px] opacity-90">3. Sınıf Öğrencisi</p>
+</div>
+</div>
+<!-- Stat 4: Registration -->
+<div class="bg-on-surface-variant p-card-padding rounded-xl text-white shadow-lg flex flex-col justify-between relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-10 scale-150 group-hover:rotate-12 transition-transform duration-500">
+<span class="material-symbols-outlined text-[100px]">database</span>
+</div>
+<div class="flex items-start justify-between relative z-10">
+<div class="p-3 bg-white/20 rounded-lg">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">database</span>
+</div>
+</div>
+<div class="mt-8 relative z-10">
+<div class="flex justify-between items-end">
+<div>
+<h3 class="text-label-md opacity-80 uppercase">Kayıt Tarihi</h3>
+<p class="text-body-lg font-bold">29.08.2023</p>
+</div>
+<div class="text-right">
+<h3 class="text-label-md opacity-80 uppercase">AGNO</h3>
+<p class="text-body-lg font-bold">1,96</p>
+</div>
+</div>
+<a class="mt-2 flex items-center gap-1 text-[12px] hover:underline" href="#">
+                            Detay <span class="material-symbols-outlined text-[14px]">arrow_circle_right</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Monitoring Grid Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Main Chart Area -->
+<div class="lg:col-span-2 bg-surface-container-lowest p-gutter rounded-2xl border border-outline-variant shadow-sm relative overflow-hidden h-[400px] flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<div>
+<h3 class="text-headline-sm text-primary">AI Kopya Risk Analizi</h3>
+<p class="text-label-md text-on-surface-variant">Son 24 saat içindeki şüpheli aktivite yoğunluğu</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-low px-3 py-1 rounded-md text-label-md border border-outline-variant hover:bg-white transition-colors">Saatlik</button>
+<button class="bg-primary text-white px-3 py-1 rounded-md text-label-md shadow-sm">Günlük</button>
+</div>
+</div>
+<div class="flex-1 relative">
+<!-- Chart Mockup with CSS -->
+<div class="absolute inset-0 flex items-end justify-between gap-2 px-2">
+<div class="w-full bg-primary/10 rounded-t-lg transition-all duration-1000 hover:bg-primary/20 cursor-pointer h-[40%] group relative">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">12:00</div>
+</div>
+<div class="w-full bg-primary/10 rounded-t-lg transition-all duration-1000 hover:bg-primary/20 cursor-pointer h-[65%]"></div>
+<div class="w-full bg-error-alert/20 rounded-t-lg transition-all duration-1000 hover:bg-error-alert/30 cursor-pointer h-[85%] border-t-2 border-error-alert"></div>
+<div class="w-full bg-primary/10 rounded-t-lg transition-all duration-1000 hover:bg-primary/20 cursor-pointer h-[50%]"></div>
+<div class="w-full bg-primary/10 rounded-t-lg transition-all duration-1000 hover:bg-primary/20 cursor-pointer h-[45%]"></div>
+<div class="w-full bg-warning-suspicious/20 rounded-t-lg transition-all duration-1000 hover:bg-warning-suspicious/30 cursor-pointer h-[70%] border-t-2 border-warning-suspicious"></div>
+<div class="w-full bg-primary/10 rounded-t-lg transition-all duration-1000 hover:bg-primary/20 cursor-pointer h-[30%]"></div>
+<div class="w-full bg-primary/10 rounded-t-lg transition-all duration-1000 hover:bg-primary/20 cursor-pointer h-[60%]"></div>
+<div class="w-full bg-primary/10 rounded-t-lg transition-all duration-1000 hover:bg-primary/20 cursor-pointer h-[55%]"></div>
+<div class="w-full bg-primary/10 rounded-t-lg transition-all duration-1000 hover:bg-primary/20 cursor-pointer h-[80%]"></div>
+<div class="w-full bg-primary/10 rounded-t-lg transition-all duration-1000 hover:bg-primary/20 cursor-pointer h-[40%]"></div>
+<div class="w-full bg-primary/10 rounded-t-lg transition-all duration-1000 hover:bg-primary/20 cursor-pointer h-[35%]"></div>
+</div>
+<!-- Axis Labels -->
+<div class="absolute bottom-0 left-0 right-0 h-[1px] bg-outline-variant"></div>
+</div>
+</div>
+<!-- Recent Activity Feed -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant shadow-sm flex flex-col h-[400px]">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-headline-sm text-primary">Son Aktiviteler</h3>
+<span class="text-label-md text-error-alert font-bold bg-error-container px-2 py-0.5 rounded-full animate-pulse">4 Yeni Uyarı</span>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-1">
+<!-- Activity Item 1 -->
+<div class="p-3 bg-surface-container-low rounded-xl border-l-4 border-error-alert flex gap-3 items-start hover:shadow-md transition-all cursor-pointer">
+<img class="w-10 h-10 rounded-lg object-cover flex-shrink-0" data-alt="Small avatar icon of a young adult student looking away from their computer screen during an online exam, captured in a webcam style view, sharp and clear lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKUmKMvTAf6Dylg1FUYYP53oaDodUDsyP42uQZiL402NVi00AU3SyU0E5ggGJkdSPqwgrWj6tAKC-sHkHxZAhj-GKiewicYqH4PfvnXYuquyukIbziVsSXVr2CHQIs_rjNugkrBcSfDKT1KsQilDmEil9NbIjtTZWeZv2kjrfycGrPa8YFbex0LRapVnqUZjgv2RyqXdjFrG3TG5ZKu6jIsKqR6icIU0w0Hzl1AFrcxCkSakykNkaY">
+<div>
+<p class="text-label-md font-bold">Öğrenci: Mehmet Yılmaz</p>
+<p class="text-[12px] text-on-surface-variant line-clamp-1">Şüpheli bakış hareketi tespit edildi.</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[10px] bg-error-container text-on-error-container px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">Yüksek Risk</span>
+<span class="text-[10px] text-outline">14:22:10</span>
+</div>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="p-3 bg-surface-container-low rounded-xl border-l-4 border-warning-suspicious flex gap-3 items-start hover:shadow-md transition-all cursor-pointer">
+<img class="w-10 h-10 rounded-lg object-cover flex-shrink-0" data-alt="Webcam screenshot of a student's workspace showing multiple devices, tablet and phone visible near the monitor, blurred background, academic test environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNjcaMeyOxml-WJDl61IH-wA_ZPNe1Zs-kaRYQL5HwQd0OYplNsQUYcfve47kjjTl2FJiy3sJH536gWz6yANKIg21YIU6UZhL8EORB7DT4E7OVM5PE0ZYlr-7ZU6hGHvqr4z0Dlrp7X5sbDS-pzePCPTPyoI1OJ1JhSvmB27RnXj9M-sSMFa4vVdshIs6NsJRK91RC5nlVwtaKK3BeFYrMs5X_apLuWVrS0ryDrupfEXuxTjTWxMDj">
+<div>
+<p class="text-label-md font-bold">Öğrenci: Ayşe Demir</p>
+<p class="text-[12px] text-on-surface-variant line-clamp-1">Birden fazla cihaz algılandı.</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[10px] bg-secondary-container text-on-secondary-container px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">Orta Risk</span>
+<span class="text-[10px] text-outline">14:18:45</span>
+</div>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="p-3 bg-surface-container-low rounded-xl border-l-4 border-success-safe flex gap-3 items-start hover:shadow-md transition-all cursor-pointer">
+<div class="w-10 h-10 bg-success-safe/10 rounded-lg flex items-center justify-center text-success-safe flex-shrink-0">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+<div>
+<p class="text-label-md font-bold">Yeni Kayıt</p>
+<p class="text-[12px] text-on-surface-variant">Sınav giriş kimliği doğrulandı.</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[10px] bg-green-100 text-success-safe px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">Güvenli</span>
+<span class="text-[10px] text-outline">14:15:00</span>
+</div>
+</div>
+</div>
+<!-- Activity Item 4 -->
+<div class="p-3 bg-surface-container-low rounded-xl border-l-4 border-warning-suspicious flex gap-3 items-start hover:shadow-md transition-all cursor-pointer opacity-70">
+<img class="w-10 h-10 rounded-lg object-cover flex-shrink-0" data-alt="Candid webcam capture of a female student in a brightly lit room, looking down at a physical notebook during a digital exam session." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCu-_lL6l9vpzw0PbY-9jrwEqc_PAsUAcNhvpJr_oKYP4Kkb835iGCw7PmdFLTsgIb12VcK83FR944OhcQ_guBO1MXOTbZ56LlVNG-i-skYr7sFTkCL9_tpmZkD1BiT0Nyt2pAiJUsCo3QZdW6exKdhgzov_Nnf8AB6cUtibVF0wcY0PhcTlHczZ4njYAzlQeiRIpQuGRsxK9hjiiYz5i2M702vq9AHs3Zl6h-VlrjMAgfdoem0QAHg">
+<div>
+<p class="text-label-md font-bold">Öğrenci: Fatma Kaya</p>
+<p class="text-[12px] text-on-surface-variant">Uzun süreli kağıda odaklanma.</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[10px] bg-secondary-container text-on-secondary-container px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">İncelemede</span>
+<span class="text-[10px] text-outline">14:02:12</span>
+</div>
+</div>
+</div>
+</div>
+<button class="mt-4 w-full py-2 border border-outline-variant rounded-lg text-label-md text-primary hover:bg-surface-container-low transition-all">Tüm Aktiviteyi Gör</button>
+</div>
+</div>
+<!-- System Status Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Server Health -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant shadow-sm">
+<h3 class="text-label-md font-bold text-on-surface-variant uppercase mb-4 tracking-wider">Veritabanı ve Sistem Durumu</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+<div class="relative">
+<span class="material-symbols-outlined text-success-safe text-[32px]">storage</span>
+<div class="absolute -top-1 -right-1 w-3 h-3 bg-success-safe rounded-full border-2 border-white"></div>
+</div>
+<div>
+<p class="text-label-md font-bold">PostgreSQL</p>
+<p class="text-[10px] text-success-safe font-mono">AKTİF / 12ms</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+<div class="relative">
+<span class="material-symbols-outlined text-success-safe text-[32px]">cached</span>
+<div class="absolute -top-1 -right-1 w-3 h-3 bg-success-safe rounded-full border-2 border-white"></div>
+</div>
+<div>
+<p class="text-label-md font-bold">Redis Cache</p>
+<p class="text-[10px] text-success-safe font-mono">AKTİF / 4ms</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+<div class="relative">
+<span class="material-symbols-outlined text-success-safe text-[32px]">memory</span>
+<div class="absolute -top-1 -right-1 w-3 h-3 bg-success-safe rounded-full border-2 border-white"></div>
+</div>
+<div>
+<p class="text-label-md font-bold">AI Node 01</p>
+<p class="text-[10px] text-success-safe font-mono">YÜK: %34</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+<div class="relative">
+<span class="material-symbols-outlined text-success-safe text-[32px]">cloud_done</span>
+<div class="absolute -top-1 -right-1 w-3 h-3 bg-success-safe rounded-full border-2 border-white"></div>
+</div>
+<div>
+<p class="text-label-md font-bold">S3 Storage</p>
+<p class="text-[10px] text-success-safe font-mono">ERİŞİLEBİLİR</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Exam Metrics Quick View -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant shadow-sm flex flex-col justify-between">
+<div>
+<h3 class="text-label-md font-bold text-on-surface-variant uppercase mb-4 tracking-wider">Bugünün Sınav Özetleri</h3>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-body-md">
+<span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary"></span> Tamamlanan</span>
+<span class="font-mono font-bold">142</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 75%"></div>
+</div>
+<div class="flex justify-between items-center text-body-md">
+<span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-secondary-container"></span> Devam Eden</span>
+<span class="font-mono font-bold">28</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full" style="width: 15%"></div>
+</div>
+<div class="flex justify-between items-center text-body-md">
+<span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-error-alert"></span> İptal/Hata</span>
+<span class="font-mono font-bold">3</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-error-alert h-full" style="width: 5%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="mt-auto py-6 px-gutter border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4 text-on-surface-variant opacity-60">
+<p class="text-label-md">© 2024 Harran Üniversitesi Bilgi İşlem Dairesi Başkanlığı</p>
+<div class="flex gap-6">
+<a class="text-label-md hover:text-primary transition-colors" href="#">Kullanım Koşulları</a>
+<a class="text-label-md hover:text-primary transition-colors" href="#">KVKK Aydınlatma Metni</a>
+<a class="text-label-md hover:text-primary transition-colors" href="#">Sistem Sürümü v2.4.1-stable</a>
+</div>
+</footer>
+</main>
+<!-- FAB for Quick Action (Hidden on non-dashboard contexts as per instructions) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all group z-50">
+<span class="material-symbols-outlined text-[30px]">support_agent</span>
+<span class="absolute right-full mr-4 bg-on-surface text-white px-3 py-1 rounded text-label-md whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">Canlı Destek</span>
+</button>
+<script>
+        // Micro-interactions and simulation logic
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Harran Üniversitesi Dashboard Initialized");
+
+            // Animation for chart bars
+            const bars = document.querySelectorAll('.rounded-t-lg');
+            bars.forEach((bar, index) => {
+                setTimeout(() => {
+                    const originalHeight = bar.style.height;
+                    bar.style.height = '0%';
+                    setTimeout(() => {
+                        bar.style.height = originalHeight;
+                    }, 50);
+                }, index * 50);
+            });
+
+            // Simulate real-time risk alert pulse
+            setInterval(() => {
+                const activityBadge = document.querySelector('.animate-pulse');
+                if (activityBadge) {
+                    activityBadge.classList.toggle('opacity-50');
+                }
+            }, 1000);
+        });
+    </script>
+
+
+</body></html>

@@ -36,8 +36,8 @@ export default function Register() {
         roleId: parseInt(formData.roleId.toString(), 10),
         mac_address: visitorId
       });
-      setSuccess('Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz...');
-      setTimeout(() => navigate('/login'), 2000);
+      setSuccess('Kayıt başarılı! E-posta doğrulama kodunu gireceğiniz sayfaya yönlendiriliyorsunuz...');
+      setTimeout(() => navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`), 2000);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Kayıt işlemi başarısız oldu.');
     } finally {

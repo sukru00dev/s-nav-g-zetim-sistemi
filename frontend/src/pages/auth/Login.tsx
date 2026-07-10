@@ -179,9 +179,20 @@ export default function Login() {
                 </div>
 
                 {error && (
-                  <div className="flex items-center gap-3 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-medium animate-shake animate-duration-300">
+                  <div className="flex items-center gap-3 p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-medium animate-shake animate-duration-300 flex-wrap">
                     <span className="material-symbols-outlined text-[18px] shrink-0">error</span>
-                    <span>{error}</span>
+                    <div className="flex-1">
+                      <span>{error}</span>
+                      {error.includes('doğrulayın') && (
+                        <button 
+                          type="button"
+                          onClick={() => navigate(`/verify-email?email=${encodeURIComponent(tc)}`)}
+                          className="ml-2 underline font-bold text-[#00306e] hover:text-[#002147] cursor-pointer block mt-1"
+                        >
+                          Doğrulama Kodunu Girin →
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
 

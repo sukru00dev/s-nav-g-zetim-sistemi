@@ -21,7 +21,7 @@ router.post('/register', authController.register);
 router.post('/verify-tc', authController.verifyTc);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/reset-password', authController.resetPassword);
-router.get('/activate', authController.activateAccount);
+router.post('/verify-code', authController.verifyCode);
 router.get('/me', authMiddleware, authController.getMe);
 
 module.exports = router;

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Harran Üniversitesi - Kullanıcı Yönetimi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fbf9f8;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#f0eded",
+                        "tertiary-fixed": "#cbe6ff",
+                        "on-error-container": "#93000a",
+                        "background": "#fbf9f8",
+                        "success-safe": "#2E7D32",
+                        "surface-background": "#F8FAFC",
+                        "on-tertiary-fixed": "#001e31",
+                        "on-tertiary-fixed-variant": "#004b72",
+                        "primary": "#00306e",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#adc6ff",
+                        "error-alert": "#D93025",
+                        "surface-container-high": "#eae8e7",
+                        "on-background": "#1b1c1c",
+                        "secondary": "#705d00",
+                        "surface-tint": "#365da3",
+                        "on-primary-container": "#97b8ff",
+                        "inverse-on-surface": "#f3f0f0",
+                        "warning-suspicious": "#F57C00",
+                        "tertiary-container": "#004d75",
+                        "inverse-surface": "#303030",
+                        "secondary-fixed": "#ffe16d",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed-variant": "#544600",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#6e5c00",
+                        "on-tertiary-container": "#6bbfff",
+                        "secondary-fixed-dim": "#e9c400",
+                        "surface-dim": "#dcd9d9",
+                        "surface-bright": "#fbf9f8",
+                        "secondary-container": "#fcd400",
+                        "on-secondary-fixed": "#221b00",
+                        "outline": "#747782",
+                        "on-primary-fixed": "#001a42",
+                        "on-primary-fixed-variant": "#19458a",
+                        "surface-container-highest": "#e4e2e1",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#1c478c",
+                        "sidebar-navy": "#002147",
+                        "on-surface-variant": "#434751",
+                        "outline-variant": "#c3c6d2",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f6f3f2",
+                        "primary-fixed-dim": "#adc6ff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-surface": "#1b1c1c",
+                        "surface": "#fbf9f8",
+                        "tertiary-fixed-dim": "#90cdff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e4e2e1",
+                        "tertiary": "#003553"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "card-padding": "20px",
+                        "sidebar-width": "260px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "header-height": "64px"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface-background text-on-surface antialiased flex">
+<!-- SideNavBar (Authority: JSON & Style Guidance) -->
+<aside class="fixed left-0 top-0 h-full w-sidebar-width bg-sidebar-navy flex flex-col py-stack-md z-50 shadow-xl">
+<div class="px-6 mb-8 flex items-center gap-3">
+<img alt="Harran University Emblem" class="w-10 h-10 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGeYQxm3YjjMw4aZxUL3jJFfh_jK9y2o5v1ndePtea_kX2k537WPYl3f747m_VTLl9kW9yPUW43EZK-i9JJVDQNdUjIHolwjB3Nlv1Znz6zy8NcX2J_oXYKCu_YVf0-Pk9OCYBNe_eT_MGX_AluMHAQr1OGqXBLBMgSWIK9pVDte4OSFilS9QZ4D2U22jYvYGdkAMobzdt9BLx1-qkzOGoOfwSY0623p7HerX8vC9iUHsrxA6dkqZuNHHPBsRWxARwUA"/>
+<div class="flex flex-col">
+<span class="text-white font-headline-sm text-headline-sm">Harran Üni.</span>
+<span class="text-surface-variant text-[10px] uppercase tracking-wider font-bold">Yönetici Paneli</span>
+</div>
+</div>
+<nav class="flex-1 space-y-1 px-3">
+<!-- Nav Item: Ana Sayfa -->
+<a class="flex items-center gap-stack-md text-surface-variant hover:bg-primary-container hover:text-white transition-all duration-200 p-3 rounded-lg group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-body-md font-body-md">Ana Sayfa</span>
+</a>
+<!-- Nav Item: Birim/Rol Yönetimi (ACTIVE) -->
+<a class="flex items-center gap-stack-md border-l-4 border-secondary-fixed bg-primary-container text-white p-3 rounded-r-lg transition-transform scale-95" href="#">
+<span class="material-symbols-outlined">manage_accounts</span>
+<span class="text-body-md font-body-md">Birim/Rol Yönetimi</span>
+</a>
+<!-- Nav Item: Sınav Yönetimi -->
+<a class="flex items-center gap-stack-md text-surface-variant hover:bg-primary-container hover:text-white transition-all duration-200 p-3 rounded-lg group" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="text-body-md font-body-md">Sınav Yönetimi</span>
+</a>
+<!-- Nav Item: Canlı Gözetim -->
+<a class="flex items-center gap-stack-md text-surface-variant hover:bg-primary-container hover:text-white transition-all duration-200 p-3 rounded-lg group" href="#">
+<span class="material-symbols-outlined">videocam</span>
+<span class="text-body-md font-body-md">Canlı Gözetim</span>
+</a>
+<!-- Nav Item: Güvenlik İhlali -->
+<a class="flex items-center gap-stack-md text-surface-variant hover:bg-primary-container hover:text-white transition-all duration-200 p-3 rounded-lg group" href="#">
+<span class="material-symbols-outlined">gpp_bad</span>
+<span class="text-body-md font-body-md">Güvenlik İhlali</span>
+</a>
+</nav>
+<div class="px-6 mb-6">
+<button class="w-full bg-secondary-container text-on-secondary-fixed py-2.5 px-4 rounded-lg font-bold text-label-md hover:opacity-90 transition-opacity">
+                Sınavı Başlat
+            </button>
+</div>
+<div class="border-t border-white/10 mt-auto pt-4 px-3 space-y-1">
+<a class="flex items-center gap-stack-md text-surface-variant hover:text-white p-3 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-label-md font-label-md">Destek</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant hover:text-white p-3 transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-label-md font-label-md">Oturumu Kapat</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-sidebar-width flex-1 flex flex-col min-h-screen relative">
+<!-- TopAppBar (Authority: JSON) -->
+<header class="sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant shadow-sm h-header-height flex justify-between items-center px-gutter w-full">
+<div class="flex items-center gap-6">
+<h1 class="text-headline-md font-bold text-primary">Kullanıcı İşlemleri</h1>
+<div class="hidden md:flex gap-4">
+<a class="text-label-md font-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors px-2 py-1 rounded" href="#">Sınav Takvimi</a>
+<a class="text-label-md font-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors px-2 py-1 rounded" href="#">Duyurular</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full text-body-md w-64 focus:ring-2 focus:ring-primary transition-all" placeholder="Hızlı ara..." type="text"/>
+</div>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-colors"><span class="material-symbols-outlined">settings</span></button>
+</div>
+<div class="h-8 w-8 rounded-full bg-primary-fixed overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="Close up profile headshot of a middle-aged academic professional with glasses and a friendly expression. The lighting is soft and corporate, set against a blurred university office background. High-quality photography style suitable for a management dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATJyD8xYKs0pq0jF-fCi5un30Wa9Xm8ZfZgtckSklV8H0plQ3YGFM4mDQNCyw6ZM9MA-6WWKxn_m0fCl_s6eN9JPJHabAcAHkFGr4Eixnqw9i37enH8cW2sqw5YdZhO8HiQZhzcwbYkMH_9gWF82UrBxQFjYCVuFIpZSi1FKogBsOIQZMMMapOqhSWo_sWT0eJECy_Ifbg9ZAvKlze11xp06anHMaIiu66YN7lCvG8-fPvaKVWweLd"/>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-gutter flex flex-col gap-6">
+<!-- Bento Stats / Header Section -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="md:col-span-3 flex flex-col gap-2">
+<h2 class="text-display-lg font-display-lg text-primary">Sistem Kullanıcıları</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-2xl">Akademik personel ve öğrencilerin rollerini, yetkilerini ve aktiflik durumlarını bu panel üzerinden yönetebilirsiniz.</p>
+</div>
+<div class="flex items-end justify-end gap-3">
+<button class="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant px-4 py-2.5 rounded-xl font-bold text-label-md hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined">download</span>
+                        Export List
+                    </button>
+<button class="flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-xl font-bold text-label-md shadow-md hover:opacity-90 transition-all">
+<span class="material-symbols-outlined">person_add</span>
+                        Add User
+                    </button>
+</div>
+</div>
+<!-- Filters Bar -->
+<div class="bg-surface-container-lowest p-4 rounded-2xl shadow-sm border border-outline-variant flex flex-wrap items-center justify-between gap-4">
+<div class="flex flex-wrap items-center gap-4">
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-bold text-outline uppercase px-1">Role</label>
+<select class="bg-surface-background border-outline-variant rounded-lg text-body-md focus:ring-primary min-w-[140px] py-2">
+<option>All Roles</option>
+<option>Student</option>
+<option>Instructor</option>
+<option>Department Head</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-bold text-outline uppercase px-1">Status</label>
+<select class="bg-surface-background border-outline-variant rounded-lg text-body-md focus:ring-primary min-w-[140px] py-2">
+<option>All Status</option>
+<option>Active</option>
+<option>Suspended</option>
+<option>Pending</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-bold text-outline uppercase px-1">Department</label>
+<select class="bg-surface-background border-outline-variant rounded-lg text-body-md focus:ring-primary min-w-[180px] py-2">
+<option>Computer Engineering</option>
+<option>Medicine</option>
+<option>Law</option>
+<option>Economics</option>
+</select>
+</div>
+</div>
+<div class="flex items-center gap-2 self-end">
+<span class="text-label-md text-on-surface-variant italic">Showing 42 users</span>
+<button class="p-2 hover:bg-surface-container-low rounded-lg transition-colors text-outline">
+<span class="material-symbols-outlined">filter_list_off</span>
+</button>
+</div>
+</div>
+<!-- User Table / Grid -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant overflow-hidden">
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-6 py-4 text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">User</th>
+<th class="px-6 py-4 text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Role</th>
+<th class="px-6 py-4 text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">ID / Number</th>
+<th class="px-6 py-4 text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Department</th>
+<th class="px-6 py-4 text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-6 py-4 text-label-md font-label-md text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-fixed font-bold">AY</div>
+<div>
+<div class="text-body-md font-bold text-primary">Ali Yılmaz</div>
+<div class="text-label-md text-on-surface-variant">ali.yilmaz@harran.edu.tr</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed text-label-md">Student</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap font-mono-data text-mono-data">200301045</td>
+<td class="px-6 py-4 whitespace-nowrap text-body-md">Computer Engineering</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-success-safe"></div>
+<span class="text-label-md font-bold text-success-safe">Active</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="p-2 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">edit</span></button>
+<button class="p-2 text-outline hover:text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed font-bold">EK</div>
+<div>
+<div class="text-body-md font-bold text-primary">Dr. Elif Kaya</div>
+<div class="text-label-md text-on-surface-variant">e.kaya@harran.edu.tr</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-md">Instructor</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap font-mono-data text-mono-data">FAC-88902</td>
+<td class="px-6 py-4 whitespace-nowrap text-body-md">Faculty of Medicine</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-success-safe"></div>
+<span class="text-label-md font-bold text-success-safe">Active</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="p-2 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">edit</span></button>
+<button class="p-2 text-outline hover:text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold">MC</div>
+<div>
+<div class="text-body-md font-bold text-primary">Mehmet Can</div>
+<div class="text-label-md text-on-surface-variant">m.can@harran.edu.tr</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed text-label-md">Student</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap font-mono-data text-mono-data">210204011</td>
+<td class="px-6 py-4 whitespace-nowrap text-body-md">Civil Engineering</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error-alert"></div>
+<span class="text-label-md font-bold text-error-alert">Suspended</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="p-2 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">edit</span></button>
+<button class="p-2 text-outline hover:text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold">SO</div>
+<div>
+<div class="text-body-md font-bold text-primary">Selin Öztürk</div>
+<div class="text-label-md text-on-surface-variant">s.ozturk@harran.edu.tr</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed text-label-md">Student</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap font-mono-data text-mono-data">220401099</td>
+<td class="px-6 py-4 whitespace-nowrap text-body-md">Law</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-warning-suspicious"></div>
+<span class="text-label-md font-bold text-warning-suspicious">Pending Review</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="p-2 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined">edit</span></button>
+<button class="p-2 text-outline hover:text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-4 bg-surface-container-low flex items-center justify-between">
+<span class="text-body-md text-on-surface-variant">Showing 1 to 4 of 42 users</span>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-label-md font-bold hover:bg-surface-container-high transition-all disabled:opacity-50" disabled="">Previous</button>
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-label-md font-bold hover:opacity-90 transition-all">Next</button>
+</div>
+</div>
+</div>
+<!-- Footer Section / Quick Actions -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-primary-container p-6 rounded-2xl text-white relative overflow-hidden group">
+<div class="relative z-10">
+<h3 class="text-headline-sm font-bold mb-2">Bulk Import</h3>
+<p class="text-body-md opacity-90 mb-4">Upload a CSV or Excel file to add multiple students at once.</p>
+<button class="bg-white text-primary px-4 py-2 rounded-lg font-bold text-label-md">Start Import</button>
+</div>
+<span class="material-symbols-outlined absolute -bottom-6 -right-6 text-9xl opacity-10 group-hover:scale-110 transition-transform">upload_file</span>
+</div>
+<div class="bg-secondary-container p-6 rounded-2xl text-on-secondary-fixed relative overflow-hidden group">
+<div class="relative z-10">
+<h3 class="text-headline-sm font-bold mb-2">Role Management</h3>
+<p class="text-body-md opacity-90 mb-4">Define custom permissions for exam proctors and observers.</p>
+<button class="bg-on-secondary-fixed text-white px-4 py-2 rounded-lg font-bold text-label-md">Configure Roles</button>
+</div>
+<span class="material-symbols-outlined absolute -bottom-6 -right-6 text-9xl opacity-10 group-hover:scale-110 transition-transform">security</span>
+</div>
+<div class="bg-surface-container-highest p-6 rounded-2xl text-on-background relative overflow-hidden group">
+<div class="relative z-10">
+<h3 class="text-headline-sm font-bold mb-2">Audit Logs</h3>
+<p class="text-body-md opacity-90 mb-4">Track all user changes and administrative actions in the system.</p>
+<button class="bg-outline text-white px-4 py-2 rounded-lg font-bold text-label-md">View Logs</button>
+</div>
+<span class="material-symbols-outlined absolute -bottom-6 -right-6 text-9xl opacity-10 group-hover:scale-110 transition-transform">history</span>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple micro-interaction for active menu highlights
+        document.querySelectorAll('aside nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (!this.classList.contains('border-l-4')) {
+                    // This is just visual feedback for demo
+                    console.log('Navigating to:', this.innerText);
+                }
+            });
+        });
+
+        // Search bar interaction
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.classList.add('w-80');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.classList.remove('w-80');
+        });
+    </script>
+</body></html>

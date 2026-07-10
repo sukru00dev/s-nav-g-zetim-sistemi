@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Harran Üniversitesi - Destek ve Yardım Merkezi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+        }
+        /* Custom scrollbar for data-intensive areas */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c3c6d2;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #747782;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#f0eded",
+                        "tertiary-fixed": "#cbe6ff",
+                        "on-error-container": "#93000a",
+                        "background": "#fbf9f8",
+                        "success-safe": "#2E7D32",
+                        "surface-background": "#F8FAFC",
+                        "on-tertiary-fixed": "#001e31",
+                        "on-tertiary-fixed-variant": "#004b72",
+                        "primary": "#00306e",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#adc6ff",
+                        "error-alert": "#D93025",
+                        "surface-container-high": "#eae8e7",
+                        "on-background": "#1b1c1c",
+                        "secondary": "#705d00",
+                        "surface-tint": "#365da3",
+                        "on-primary-container": "#97b8ff",
+                        "inverse-on-surface": "#f3f0f0",
+                        "warning-suspicious": "#F57C00",
+                        "tertiary-container": "#004d75",
+                        "inverse-surface": "#303030",
+                        "secondary-fixed": "#ffe16d",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed-variant": "#544600",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#6e5c00",
+                        "on-tertiary-container": "#6bbfff",
+                        "secondary-fixed-dim": "#e9c400",
+                        "surface-dim": "#dcd9d9",
+                        "surface-bright": "#fbf9f8",
+                        "secondary-container": "#fcd400",
+                        "on-secondary-fixed": "#221b00",
+                        "outline": "#747782",
+                        "on-primary-fixed": "#001a42",
+                        "on-primary-fixed-variant": "#19458a",
+                        "surface-container-highest": "#e4e2e1",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#1c478c",
+                        "sidebar-navy": "#002147",
+                        "on-surface-variant": "#434751",
+                        "outline-variant": "#c3c6d2",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f6f3f2",
+                        "primary-fixed-dim": "#adc6ff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-surface": "#1b1c1c",
+                        "surface": "#fbf9f8",
+                        "tertiary-fixed-dim": "#90cdff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e4e2e1",
+                        "tertiary": "#003553"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "card-padding": "20px",
+                        "sidebar-width": "260px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "header-height": "64px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="flex min-h-screen overflow-x-hidden">
+<!-- SideNavBar Component -->
+<aside class="fixed left-0 top-0 h-full w-sidebar-width bg-sidebar-navy shadow-xl flex flex-col py-stack-md z-50 transition-all duration-300 hidden md:flex">
+<div class="px-6 mb-8 flex flex-col items-center gap-4">
+<img alt="Harran University Logo" class="w-20 h-20 object-contain brightness-0 invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAA6cvuJO0v4u1Wcgb0-s4zLQGZHfYFUJ5EkVVELAQH8VHwvdUkgFyczoV47CPWtii6-9KFa6vqaWT6OA77K3MeqqBa1BOIof5vj7XEQVRjAsDHXmCxv4zDsV31Kv2pmAOQVrmqUvgGrHcxry4nT38DaYQ_ZeOzfRwEfnEzlSpNvIleCaXYiMEbRDZx4y3bYR1TojG9X_qcQf-SemA2wCMRgbpSM9aYastAIx5xtAjg2_xbYzBJp4OsLlZFj4uKf5QVSA"/>
+<div class="text-center">
+<h1 class="text-headline-sm font-headline-sm text-surface-container-lowest">Harran Üniversitesi</h1>
+<p class="text-label-md font-label-md text-surface-variant opacity-70">Dünya Yöneticisi Paneli</p>
+</div>
+</div>
+<nav class="flex-grow flex flex-col px-4 gap-2">
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-body-md font-body-md">Ana Sayfa</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">manage_accounts</span>
+<span class="text-body-md font-body-md">Birim/Rol Yönetimi</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="text-body-md font-body-md">Sınav Yönetimi</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">videocam</span>
+<span class="text-body-md font-body-md">Canlı Gözetim</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-primary-container hover:text-white transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">gpp_bad</span>
+<span class="text-body-md font-body-md">Güvenlik İhlali</span>
+</a>
+<div class="mt-4 border-t border-white/10 pt-4">
+<a class="flex items-center gap-stack-md border-l-4 border-secondary-fixed bg-primary-container text-white p-3 rounded-r-lg scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-body-md font-body-md">Destek</span>
+</a>
+</div>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full py-3 bg-secondary-container text-on-secondary-container font-bold rounded-lg hover:bg-secondary-fixed-dim transition-colors mb-6">
+                Sınavı Başlat
+            </button>
+<a class="flex items-center gap-stack-md text-surface-variant p-3 hover:bg-red-900/20 hover:text-error transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-body-md font-body-md">Oturumu Kapat</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="flex-grow md:ml-[260px] min-h-screen flex flex-col">
+<!-- TopAppBar Component -->
+<header class="bg-surface-container-lowest sticky top-0 z-40 border-b border-outline-variant shadow-sm w-full h-header-height px-gutter flex justify-between items-center">
+<div class="flex items-center gap-6">
+<h2 class="text-headline-md font-headline-md font-bold text-primary">Destek Merkezi</h2>
+<nav class="hidden lg:flex gap-6 items-center">
+<a class="text-on-surface-variant hover:text-primary text-label-md font-label-md transition-colors" href="#">Sınav Takvimi</a>
+<a class="text-on-surface-variant hover:text-primary text-label-md font-label-md transition-colors" href="#">Duyurular</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 text-body-md w-64 focus:ring-2 focus:ring-primary" placeholder="Yardım dökümanlarında ara..." type="text"/>
+</div>
+<button class="p-2 rounded-full hover:bg-surface-container-low text-on-surface-variant relative transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error-alert rounded-full"></span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-low text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant mx-1"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="text-label-md font-bold text-on-surface">Dünya Yöneticisi</p>
+<p class="text-[10px] text-outline uppercase tracking-wider">Administrator</p>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-primary-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a middle-aged academic administrator with graying hair, wearing a navy blue suit and a crisp white shirt. The background is a soft-focus library with dark wood shelves and leather-bound books. The lighting is flattering and professional, creating a trustworthy and authoritative corporate atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIGNgtKsno0mVDFq0PQv5MUmxt5kKJVlfdtMYL2jZS4kYRnD7mrsXEG5c2RzVP9cPAvok-D_08LUr4MIFLXhTG0u0_bz_NRc_PL1BvX8caPeSHKrQzaBz9ak6_eFGrVwYGo1MTxmjOESIvjqXoOeBXZv_oKAZzFIPASUGpOCNe4jOKT8gwsBmIRRbSCy9i5jc5rZDllzTgNVAGvXQ6y_VDrHTggPH3zWAeOAfXcMHBHUP9CLP4hhCp"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<div class="p-8 max-w-7xl mx-auto w-full">
+<!-- Hero Welcome Section -->
+<section class="mb-12 relative overflow-hidden rounded-2xl bg-sidebar-navy p-10 text-white shadow-lg">
+<div class="relative z-10 max-w-2xl">
+<span class="inline-block px-3 py-1 bg-secondary-fixed text-on-secondary-fixed text-label-md rounded-full mb-4">TEKNİK DESTEK</span>
+<h1 class="text-display-lg font-display-lg mb-4">Size nasıl yardımcı olabiliriz?</h1>
+<p class="text-body-lg opacity-80 mb-8">Sınav platformu, gözetim araçları veya oturum açma sorunları ile ilgili yardım alın. Destek ekibimiz 7/24 yanınızda.</p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-primary-container hover:bg-primary border border-primary-fixed/20 px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all" onclick="document.getElementById('ticket-modal').classList.remove('hidden')">
+<span class="material-symbols-outlined">add_circle</span>
+                            Yeni Destek Talebi Oluştur
+                        </button>
+<button class="bg-white/10 hover:bg-white/20 backdrop-blur-sm px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all">
+<span class="material-symbols-outlined">history</span>
+                            Geçmiş Taleplerim
+                        </button>
+</div>
+</div>
+<!-- Subtle Background Decorative Element -->
+<div class="absolute -right-20 -top-20 w-80 h-80 bg-primary opacity-20 rounded-full blur-3xl"></div>
+<div class="absolute right-20 bottom-10 opacity-10">
+<span class="material-symbols-outlined text-[120px]">support_agent</span>
+</div>
+</section>
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Active Tickets Column -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h3 class="text-headline-sm font-headline-sm text-primary">Mevcut Destek Talepleri</h3>
+<span class="text-label-md text-outline">3 Aktif Talep</span>
+</div>
+<!-- Ticket Cards -->
+<div class="space-y-4">
+<!-- High Priority Ticket -->
+<div class="bg-surface-container-lowest border border-outline-variant p-card-padding rounded-xl shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-error-alert"></div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex-grow">
+<div class="flex items-center gap-3 mb-2">
+<span class="text-label-md bg-error-container text-on-error-container px-2 py-0.5 rounded">KRİTİK</span>
+<span class="text-label-md text-outline">#TK-8842</span>
+</div>
+<h4 class="text-body-lg font-bold text-on-surface group-hover:text-primary transition-colors">Yapay Zeka İzleme Servisi Hatası (Oturum: #ENG101)</h4>
+<p class="text-body-md text-on-surface-variant mt-1">Sınav sırasında rastgele "API 500" hataları alınıyor. Gözetmen ekranı donuyor.</p>
+</div>
+<div class="flex flex-col items-end gap-2 shrink-0">
+<div class="flex items-center gap-2 text-warning-suspicious">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-label-md font-bold">İnceleniyor</span>
+</div>
+<span class="text-[11px] text-outline">Son Güncelleme: 12 dk önce</span>
+</div>
+</div>
+</div>
+<!-- Normal Ticket -->
+<div class="bg-surface-container-lowest border border-outline-variant p-card-padding rounded-xl shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-secondary-fixed"></div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex-grow">
+<div class="flex items-center gap-3 mb-2">
+<span class="text-label-md bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded">ORTA</span>
+<span class="text-label-md text-outline">#TK-8710</span>
+</div>
+<h4 class="text-body-lg font-bold text-on-surface group-hover:text-primary transition-colors">Kamera Bağlantı Sorunu - Öğrenci: 20210042</h4>
+<p class="text-body-md text-on-surface-variant mt-1">Öğrenci Mac OS Ventura üzerinde Chrome kamera izni veremiyor.</p>
+</div>
+<div class="flex flex-col items-end gap-2 shrink-0">
+<div class="flex items-center gap-2 text-success-safe">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span class="text-label-md font-bold">Cevaplandı</span>
+</div>
+<span class="text-[11px] text-outline">Son Güncelleme: 2 saat önce</span>
+</div>
+</div>
+</div>
+<!-- Routine Ticket -->
+<div class="bg-surface-container-lowest border border-outline-variant p-card-padding rounded-xl shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-outline"></div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex-grow">
+<div class="flex items-center gap-3 mb-2">
+<span class="text-label-md bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded">DÜŞÜK</span>
+<span class="text-label-md text-outline">#TK-8692</span>
+</div>
+<h4 class="text-body-lg font-bold text-on-surface group-hover:text-primary transition-colors">Yeni Gözetmen Tanımlama Talebi</h4>
+<p class="text-body-md text-on-surface-variant mt-1">Fen Fakültesi için 3 yeni asistan hesabının yetkilendirilmesi.</p>
+</div>
+<div class="flex flex-col items-end gap-2 shrink-0">
+<div class="flex items-center gap-2 text-outline">
+<span class="material-symbols-outlined text-sm">hourglass_empty</span>
+<span class="text-label-md font-bold">Sırada</span>
+</div>
+<span class="text-[11px] text-outline">Son Güncelleme: Dün</span>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full py-4 border-2 border-dashed border-outline-variant rounded-xl text-outline font-bold hover:bg-surface-container-low hover:text-primary transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">expand_more</span>
+                        Tüm Geçmiş Talepleri Görüntüle
+                    </button>
+</div>
+<!-- FAQ & Knowledge Base Column -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<h3 class="text-headline-sm font-headline-sm text-primary">Sıkça Sorulan Sorular</h3>
+<div class="space-y-3">
+<!-- FAQ Item 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm transition-all">
+<button class="w-full text-left p-4 flex items-center justify-between group" onclick="toggleFaq(this)">
+<span class="text-body-md font-bold text-on-surface group-hover:text-primary transition-colors">Camera Connection (Kamera Bağlantısı)</span>
+<span class="material-symbols-outlined transition-transform duration-300">add</span>
+</button>
+<div class="hidden px-4 pb-4 text-body-md text-on-surface-variant">
+                                Tarayıcı ayarlarından kamera izinlerini sıfırlayın ve sayfayı yenileyin. Antivirüs yazılımınızın web kamerasına erişimi engellemediğinden emin olun.
+                            </div>
+</div>
+<!-- FAQ Item 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm transition-all">
+<button class="w-full text-left p-4 flex items-center justify-between group" onclick="toggleFaq(this)">
+<span class="text-body-md font-bold text-on-surface group-hover:text-primary transition-colors">Login Problems (Giriş Sorunları)</span>
+<span class="material-symbols-outlined transition-transform duration-300">add</span>
+</button>
+<div class="hidden px-4 pb-4 text-body-md text-on-surface-variant">
+                                Üniversite e-posta adresiniz ve şifreniz ile giriş yapamıyorsanız, SSO servisinin aktif olup olmadığını kontrol edin veya şifre sıfırlama talebi oluşturun.
+                            </div>
+</div>
+<!-- FAQ Item 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm transition-all">
+<button class="w-full text-left p-4 flex items-center justify-between group" onclick="toggleFaq(this)">
+<span class="text-body-md font-bold text-on-surface group-hover:text-primary transition-colors">Sınav Ekranı Donması</span>
+<span class="material-symbols-outlined transition-transform duration-300">add</span>
+</button>
+<div class="hidden px-4 pb-4 text-body-md text-on-surface-variant">
+                                İnternet bağlantınızı kontrol edin. Sınav otomatik olarak kaydedilir; tarayıcıyı kapatıp tekrar açarak oturuma kaldığınız yerden devam edebilirsiniz.
+                            </div>
+</div>
+</div>
+<!-- Knowledge Base Promo -->
+<div class="bg-tertiary-container text-white p-6 rounded-2xl relative overflow-hidden shadow-md">
+<div class="relative z-10">
+<h4 class="text-body-lg font-bold mb-2">Bilgi Bankası</h4>
+<p class="text-body-md opacity-80 mb-4">Detaylı kurulum rehberleri ve video eğitimlere göz atın.</p>
+<a class="inline-flex items-center gap-2 text-secondary-fixed font-bold hover:underline" href="#">
+                                Dokümanlara Git
+                                <span class="material-symbols-outlined text-sm">open_in_new</span>
+</a>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-[100px]">auto_stories</span>
+</div>
+</div>
+<!-- Contact Card -->
+<div class="border border-outline-variant bg-surface-container-low p-6 rounded-2xl flex flex-col items-center text-center">
+<div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4">
+<span class="material-symbols-outlined">call</span>
+</div>
+<h4 class="text-body-lg font-bold">Acil Destek Hattı</h4>
+<p class="text-body-md text-on-surface-variant mb-4">Sınav anındaki kritik sorunlar için doğrudan arayın.</p>
+<p class="text-headline-sm font-bold text-primary tracking-wider">+90 (414) 318 00 00</p>
+<p class="text-[10px] text-outline mt-1 italic">Dahili: 1122</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Support Ticket Modal (Hidden by default) -->
+<div class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4" id="ticket-modal">
+<div class="absolute inset-0 bg-sidebar-navy/60 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')"></div>
+<div class="relative bg-surface-container-lowest w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center">
+<h3 class="text-headline-sm font-headline-sm text-primary">Yeni Destek Talebi</h3>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-colors" onclick="document.getElementById('ticket-modal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-6 space-y-4">
+<div>
+<label class="block text-label-md font-bold mb-1 text-on-surface-variant uppercase tracking-tighter">Konu Başlığı</label>
+<input class="w-full border-outline-variant rounded-lg focus:ring-primary focus:border-primary" placeholder="Örn: Sınav girişinde hata alıyorum" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-label-md font-bold mb-1 text-on-surface-variant uppercase tracking-tighter">Kategori</label>
+<select class="w-full border-outline-variant rounded-lg focus:ring-primary focus:border-primary">
+<option>Yazılım Hatası</option>
+<option>Donanım/Kamera</option>
+<option>Kullanıcı Hesabı</option>
+<option>Diğer</option>
+</select>
+</div>
+<div>
+<label class="block text-label-md font-bold mb-1 text-on-surface-variant uppercase tracking-tighter">Önem Derecesi</label>
+<select class="w-full border-outline-variant rounded-lg focus:ring-primary focus:border-primary">
+<option>Düşük</option>
+<option>Normal</option>
+<option>Kritik (Sınav Anı)</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block text-label-md font-bold mb-1 text-on-surface-variant uppercase tracking-tighter">Detaylı Açıklama</label>
+<textarea class="w-full border-outline-variant rounded-lg focus:ring-primary focus:border-primary" placeholder="Lütfen karşılaştığınız sorunu detaylandırın. Varsa hata kodunu ekleyin." rows="4"></textarea>
+</div>
+<div class="border-2 border-dashed border-outline-variant p-6 rounded-xl flex flex-col items-center justify-center text-outline hover:bg-surface-container-low hover:text-primary transition-all cursor-pointer">
+<span class="material-symbols-outlined text-4xl mb-2">cloud_upload</span>
+<p class="text-body-md font-bold">Ekran görüntüsü eklemek için tıklayın</p>
+<p class="text-[11px]">PNG, JPG veya PDF (Max 5MB)</p>
+</div>
+</div>
+<div class="p-6 bg-surface-container-low flex justify-end gap-3">
+<button class="px-6 py-2 rounded-lg font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors" onclick="document.getElementById('ticket-modal').classList.add('hidden')">Vazgeç</button>
+<button class="px-8 py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary-container shadow-md transition-all">Talebi Gönder</button>
+</div>
+</div>
+</div>
+<!-- Scripts for micro-interactions -->
+<script>
+        function toggleFaq(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('.material-symbols-outlined');
+            
+            // Toggle Visibility
+            const isHidden = content.classList.contains('hidden');
+            
+            // Close all others
+            document.querySelectorAll('.faq-content').forEach(el => el.classList.add('hidden'));
+            
+            if (isHidden) {
+                content.classList.remove('hidden');
+                icon.textContent = 'remove';
+                icon.style.transform = 'rotate(180deg)';
+                button.parentElement.classList.add('border-primary', 'bg-primary-container/5');
+            } else {
+                content.classList.add('hidden');
+                icon.textContent = 'add';
+                icon.style.transform = 'rotate(0deg)';
+                button.parentElement.classList.remove('border-primary', 'bg-primary-container/5');
+            }
+        }
+
+        // Add class to FAQ contents for easier selection
+        document.querySelectorAll('div.hidden.px-4.pb-4').forEach(div => div.classList.add('faq-content'));
+    </script>
+</body></html>

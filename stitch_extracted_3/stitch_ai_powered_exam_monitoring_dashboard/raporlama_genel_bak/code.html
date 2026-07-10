@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+
+<html class="light" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Harran Üniversitesi - Raporlama Paneli</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#f0eded",
+                    "tertiary-fixed": "#cbe6ff",
+                    "on-error-container": "#93000a",
+                    "background": "#fbf9f8",
+                    "success-safe": "#2E7D32",
+                    "surface-background": "#F8FAFC",
+                    "on-tertiary-fixed": "#001e31",
+                    "on-tertiary-fixed-variant": "#004b72",
+                    "primary": "#00306e",
+                    "on-tertiary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#adc6ff",
+                    "error-alert": "#D93025",
+                    "surface-container-high": "#eae8e7",
+                    "on-background": "#1b1c1c",
+                    "secondary": "#705d00",
+                    "surface-tint": "#365da3",
+                    "on-primary-container": "#97b8ff",
+                    "inverse-on-surface": "#f3f0f0",
+                    "warning-suspicious": "#F57C00",
+                    "tertiary-container": "#004d75",
+                    "inverse-surface": "#303030",
+                    "secondary-fixed": "#ffe16d",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed-variant": "#544600",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#6e5c00",
+                    "on-tertiary-container": "#6bbfff",
+                    "secondary-fixed-dim": "#e9c400",
+                    "surface-dim": "#dcd9d9",
+                    "surface-bright": "#fbf9f8",
+                    "secondary-container": "#fcd400",
+                    "on-secondary-fixed": "#221b00",
+                    "outline": "#747782",
+                    "on-primary-fixed": "#001a42",
+                    "on-primary-fixed-variant": "#19458a",
+                    "surface-container-highest": "#e4e2e1",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-container": "#1c478c",
+                    "sidebar-navy": "#002147",
+                    "on-surface-variant": "#434751",
+                    "outline-variant": "#c3c6d2",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f6f3f2",
+                    "primary-fixed-dim": "#adc6ff",
+                    "primary-fixed": "#d8e2ff",
+                    "on-surface": "#1b1c1c",
+                    "surface": "#fbf9f8",
+                    "tertiary-fixed-dim": "#90cdff",
+                    "on-error": "#ffffff",
+                    "surface-variant": "#e4e2e1",
+                    "tertiary": "#003553"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "card-padding": "20px",
+                    "sidebar-width": "260px",
+                    "stack-sm": "8px",
+                    "stack-md": "16px",
+                    "header-height": "64px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "headline-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "mono-data": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "mono-data": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .chart-bar { transition: height 1s ease-out; }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid #E2E8F0;
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-full w-sidebar-width bg-sidebar-navy shadow-xl flex flex-col py-stack-md z-[60] hidden md:flex">
+<div class="px-6 mb-8 flex flex-col items-center">
+<img alt="Harran University Emblem" class="w-20 h-20 mb-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVo0TyVFlpcSfWfXet-604LasOD5hvA8b66v3LnOyGcXNIp5fneL_Ciw9x8MZ36FtgOEaQ72OZ0xk_StnW6bJtCdOrR636Tt2XwdcWqwUjneDX3MW84etDT0nLZiCGQOHnlhWi2JZzoXpTmwM8P4zgUH5cJYqOYRZtBZQLKkmPHIFtqFNjRKQBbRNvzUQIlyVRS17_lFqr0qUfNUO6d-P2EQJPZ-X16fJ03pgRKSgi9IiQ8n66_nv7vru1C1pe2q4yfQ"/>
+<h1 class="text-headline-sm font-headline-sm text-white text-center">Harran Üniversitesi</h1>
+<p class="text-label-md font-label-md text-surface-variant opacity-80 uppercase tracking-widest mt-1">DÜNYA YÖNETİCİSİ</p>
+</div>
+<nav class="flex-1 flex flex-col px-4 gap-2">
+<a class="flex items-center gap-stack-md border-l-4 border-secondary-fixed bg-primary-container text-white p-3 rounded-r-lg transition-all scale-95" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-body-md font-body-md">Ana Sayfa</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant hover:bg-primary-container hover:text-white p-3 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">manage_accounts</span>
+<span class="text-body-md font-body-md">Birim/Rol Yönetimi</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant hover:bg-primary-container hover:text-white p-3 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="text-body-md font-body-md">Sınav Yönetimi</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant hover:bg-primary-container hover:text-white p-3 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">videocam</span>
+<span class="text-body-md font-body-md">Canlı Gözetim</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant hover:bg-primary-container hover:text-white p-3 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">gpp_bad</span>
+<span class="text-body-md font-body-md">Güvenlik İhlali</span>
+</a>
+</nav>
+<div class="px-4 mt-auto border-t border-white/10 pt-4 flex flex-col gap-2">
+<a class="flex items-center gap-stack-md text-surface-variant hover:text-white p-2" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-label-md font-label-md">Destek</span>
+</a>
+<a class="flex items-center gap-stack-md text-surface-variant hover:text-error-container p-2" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-label-md font-label-md">Oturumu Kapat</span>
+</a>
+</div>
+</aside>
+<!-- Top App Bar -->
+<header class="fixed top-0 left-0 md:left-sidebar-width right-0 h-header-height bg-surface-container-lowest border-b border-outline-variant shadow-sm z-50 flex justify-between items-center px-gutter">
+<div class="flex items-center gap-4">
+<h2 class="text-headline-sm font-headline-sm text-primary font-bold">Raporlama Paneli</h2>
+<div class="hidden lg:flex items-center bg-surface-container-low rounded-full px-4 py-1.5 border border-outline-variant">
+<span class="material-symbols-outlined text-outline text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md w-48" placeholder="Raporlarda ara..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-stack-md">
+<div class="hidden md:flex gap-4 mr-4">
+<a class="text-primary border-b-2 border-primary pb-1 text-label-md font-label-md" href="#">Sınav Takvimi</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">Duyurular</a>
+</div>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="flex items-center gap-3 ml-2 pl-4 border-l border-outline-variant">
+<div class="text-right hidden sm:block">
+<p class="text-label-md font-label-md text-on-surface">Dünya Yöneticisi</p>
+<p class="text-[10px] text-outline uppercase tracking-tighter">Sistem Admin</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-white font-bold">DY</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-24 pb-12 ml-0 md:ml-sidebar-width px-gutter">
+<!-- Header Actions Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+<div>
+<h3 class="text-display-lg font-display-lg text-on-surface">Sistem Genel Bakış</h3>
+<p class="text-body-md text-on-surface-variant mt-1">Son 30 günlük akademik performans ve güvenlik metrikleri.</p>
+</div>
+<div class="flex items-center gap-3 bg-white p-2 rounded-xl border border-outline-variant shadow-sm">
+<div class="flex items-center px-3 py-1.5 border-r border-outline-variant">
+<span class="material-symbols-outlined text-outline mr-2 text-xl">calendar_today</span>
+<span class="text-label-md font-label-md text-on-surface">01 May - 31 May 2024</span>
+</div>
+<button class="flex items-center gap-2 px-4 py-1.5 bg-primary text-white rounded-lg hover:opacity-90 transition-all font-label-md">
+<span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                    PDF Raporu İndir
+                </button>
+</div>
+</div>
+<!-- Metric Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="glass-card p-6 rounded-xl shadow-sm border-l-4 border-primary">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-primary/10 p-2 rounded-lg text-primary">
+<span class="material-symbols-outlined">school</span>
+</div>
+<span class="text-success-safe text-label-md font-label-md flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">trending_up</span> +12%
+                    </span>
+</div>
+<p class="text-label-md font-label-md text-outline uppercase">Toplam Sınav</p>
+<h4 class="text-headline-md font-headline-md text-on-surface">1,482</h4>
+</div>
+<div class="glass-card p-6 rounded-xl shadow-sm border-l-4 border-success-safe">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-success-safe/10 p-2 rounded-lg text-success-safe">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<span class="text-success-safe text-label-md font-label-md flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">trending_up</span> +4.3%
+                    </span>
+</div>
+<p class="text-label-md font-label-md text-outline uppercase">Başarı Oranı</p>
+<h4 class="text-headline-md font-headline-md text-on-surface">%84.2</h4>
+</div>
+<div class="glass-card p-6 rounded-xl shadow-sm border-l-4 border-error-alert">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-error-alert/10 p-2 rounded-lg text-error-alert">
+<span class="material-symbols-outlined">report_problem</span>
+</div>
+<span class="text-error-alert text-label-md font-label-md flex items-center">
+<span class="material-symbols-outlined text-sm mr-1">trending_down</span> -2.1%
+                    </span>
+</div>
+<p class="text-label-md font-label-md text-outline uppercase">İhlal Sayısı</p>
+<h4 class="text-headline-md font-headline-md text-on-surface">156</h4>
+</div>
+<div class="glass-card p-6 rounded-xl shadow-sm border-l-4 border-secondary-container">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-secondary-container/10 p-2 rounded-lg text-secondary">
+<span class="material-symbols-outlined">group</span>
+</div>
+<span class="text-on-surface-variant text-label-md font-label-md">Aktif İzleme</span>
+</div>
+<p class="text-label-md font-label-md text-outline uppercase">Aktif Adaylar</p>
+<h4 class="text-headline-md font-headline-md text-on-surface">4,290</h4>
+</div>
+</div>
+<!-- Bento Grid Charts -->
+<div class="bento-grid">
+<!-- Success Rates Main Chart -->
+<div class="col-span-12 lg:col-span-8 glass-card p-6 rounded-xl shadow-sm overflow-hidden flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h5 class="text-headline-sm font-headline-sm text-on-surface">Fakülte Bazlı Başarı Oranları</h5>
+<select class="bg-surface-container-low border-none text-label-md rounded-lg focus:ring-0">
+<option>Tüm Fakülteler</option>
+<option>Mühendislik</option>
+<option>Tıp</option>
+<option>Fen Edebiyat</option>
+</select>
+</div>
+<div class="flex-1 flex items-end justify-between gap-4 h-[300px] pt-8">
+<div class="flex flex-col items-center flex-1 gap-4">
+<div class="w-full bg-primary relative chart-bar rounded-t-lg" style="height: 85%;">
+<span class="absolute -top-7 left-1/2 -translate-x-1/2 text-mono-data text-primary">%85</span>
+</div>
+<span class="text-label-md text-outline rotate-[-45deg] lg:rotate-0 mt-4">Mühendislik</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-4">
+<div class="w-full bg-secondary-container relative chart-bar rounded-t-lg" style="height: 92%;">
+<span class="absolute -top-7 left-1/2 -translate-x-1/2 text-mono-data text-secondary">%92</span>
+</div>
+<span class="text-label-md text-outline rotate-[-45deg] lg:rotate-0 mt-4">Tıp</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-4">
+<div class="w-full bg-primary relative chart-bar rounded-t-lg" style="height: 74%;">
+<span class="absolute -top-7 left-1/2 -translate-x-1/2 text-mono-data text-primary">%74</span>
+</div>
+<span class="text-label-md text-outline rotate-[-45deg] lg:rotate-0 mt-4">Fen Ed.</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-4">
+<div class="w-full bg-primary relative chart-bar rounded-t-lg" style="height: 88%;">
+<span class="absolute -top-7 left-1/2 -translate-x-1/2 text-mono-data text-primary">%88</span>
+</div>
+<span class="text-label-md text-outline rotate-[-45deg] lg:rotate-0 mt-4">İktisat</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-4">
+<div class="w-full bg-primary relative chart-bar rounded-t-lg" style="height: 65%;">
+<span class="absolute -top-7 left-1/2 -translate-x-1/2 text-mono-data text-primary">%65</span>
+</div>
+<span class="text-label-md text-outline rotate-[-45deg] lg:rotate-0 mt-4">Eğitim</span>
+</div>
+<div class="flex flex-col items-center flex-1 gap-4">
+<div class="w-full bg-primary relative chart-bar rounded-t-lg" style="height: 81%;">
+<span class="absolute -top-7 left-1/2 -translate-x-1/2 text-mono-data text-primary">%81</span>
+</div>
+<span class="text-label-md text-outline rotate-[-45deg] lg:rotate-0 mt-4">Ziraat</span>
+</div>
+</div>
+</div>
+<!-- Violation Types Donut / List -->
+<div class="col-span-12 lg:col-span-4 glass-card p-6 rounded-xl shadow-sm">
+<h5 class="text-headline-sm font-headline-sm text-on-surface mb-6">İhlal Türleri Dağılımı</h5>
+<div class="space-y-6">
+<div class="relative pt-1">
+<div class="flex mb-2 items-center justify-between">
+<div>
+<span class="text-label-md font-label-md inline-block py-1 px-2 uppercase rounded-full text-error-alert bg-error-alert/10">Bakış Sapması</span>
+</div>
+<div class="text-right">
+<span class="text-mono-data font-semibold inline-block text-on-surface">42%</span>
+</div>
+</div>
+<div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-surface-container">
+<div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-error-alert" style="width:42%"></div>
+</div>
+</div>
+<div class="relative pt-1">
+<div class="flex mb-2 items-center justify-between">
+<div>
+<span class="text-label-md font-label-md inline-block py-1 px-2 uppercase rounded-full text-warning-suspicious bg-warning-suspicious/10">Ses Algılama</span>
+</div>
+<div class="text-right">
+<span class="text-mono-data font-semibold inline-block text-on-surface">28%</span>
+</div>
+</div>
+<div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-surface-container">
+<div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-warning-suspicious" style="width:28%"></div>
+</div>
+</div>
+<div class="relative pt-1">
+<div class="flex mb-2 items-center justify-between">
+<div>
+<span class="text-label-md font-label-md inline-block py-1 px-2 uppercase rounded-full text-primary bg-primary/10">Çoklu Yüz</span>
+</div>
+<div class="text-right">
+<span class="text-mono-data font-semibold inline-block text-on-surface">18%</span>
+</div>
+</div>
+<div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-surface-container">
+<div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary" style="width:18%"></div>
+</div>
+</div>
+<div class="relative pt-1">
+<div class="flex mb-2 items-center justify-between">
+<div>
+<span class="text-label-md font-label-md inline-block py-1 px-2 uppercase rounded-full text-outline bg-outline/10">Cihaz Tespiti</span>
+</div>
+<div class="text-right">
+<span class="text-mono-data font-semibold inline-block text-on-surface">12%</span>
+</div>
+</div>
+<div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-surface-container">
+<div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-outline" style="width:12%"></div>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 py-2 text-label-md text-primary border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors">Detaylı Analizi Görüntüle</button>
+</div>
+<!-- Recent System Activity Table -->
+<div class="col-span-12 glass-card rounded-xl shadow-sm overflow-hidden">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<h5 class="text-headline-sm font-headline-sm text-on-surface">Son Sistem Kullanım Aktiviteleri</h5>
+<div class="flex gap-2">
+<button class="p-1.5 hover:bg-surface-container-low rounded"><span class="material-symbols-outlined text-outline">filter_list</span></button>
+<button class="p-1.5 hover:bg-surface-container-low rounded"><span class="material-symbols-outlined text-outline">download</span></button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="p-4 text-label-md font-label-md text-on-surface-variant uppercase">Kullanıcı</th>
+<th class="p-4 text-label-md font-label-md text-on-surface-variant uppercase">Eylem</th>
+<th class="p-4 text-label-md font-label-md text-on-surface-variant uppercase">Oturum ID</th>
+<th class="p-4 text-label-md font-label-md text-on-surface-variant uppercase">Tarih / Saat</th>
+<th class="p-4 text-label-md font-label-md text-on-surface-variant uppercase text-right">Durum</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">AK</div>
+<div>
+<p class="text-body-md font-semibold">Ahmet Kaya</p>
+<p class="text-[11px] text-outline">Fakülte Sekreteri</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-body-md">Sınav Raporu Oluşturuldu</td>
+<td class="p-4 text-mono-data">#SR-98241</td>
+<td class="p-4 text-body-md text-on-surface-variant">24 May 2024, 14:32</td>
+<td class="p-4 text-right">
+<span class="px-2 py-1 bg-success-safe/10 text-success-safe text-[11px] font-bold rounded uppercase">Tamamlandı</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">MY</div>
+<div>
+<p class="text-body-md font-semibold">Merve Yılmaz</p>
+<p class="text-[11px] text-outline">Gözetmen</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-body-md">Yapay Zeka Modeli Güncellendi</td>
+<td class="p-4 text-mono-data">#AI-22019</td>
+<td class="p-4 text-body-md text-on-surface-variant">24 May 2024, 11:15</td>
+<td class="p-4 text-right">
+<span class="px-2 py-1 bg-success-safe/10 text-success-safe text-[11px] font-bold rounded uppercase">Tamamlandı</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">DC</div>
+<div>
+<p class="text-body-md font-semibold">Demir Can</p>
+<p class="text-[11px] text-outline">Sistem Uzmanı</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-body-md">Veritabanı Yedekleme</td>
+<td class="p-4 text-mono-data">#BK-44332</td>
+<td class="p-4 text-body-md text-on-surface-variant">23 May 2024, 23:00</td>
+<td class="p-4 text-right">
+<span class="px-2 py-1 bg-warning-suspicious/10 text-warning-suspicious text-[11px] font-bold rounded uppercase">Beklemede</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">ST</div>
+<div>
+<p class="text-body-md font-semibold">Selin Tekin</p>
+<p class="text-[11px] text-outline">Dekan Yardımcısı</p>
+</div>
+</div>
+</td>
+<td class="p-4 text-body-md">İhlal Kanıtları Arşivlendi</td>
+<td class="p-4 text-mono-data">#AR-77110</td>
+<td class="p-4 text-body-md text-on-surface-variant">23 May 2024, 16:45</td>
+<td class="p-4 text-right">
+<span class="px-2 py-1 bg-success-safe/10 text-success-safe text-[11px] font-bold rounded uppercase">Tamamlandı</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-surface-container-low flex justify-center">
+<button class="text-label-md text-primary font-bold hover:underline">Tüm Kayıtları Göster</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Success Toast (Interaction Demo) -->
+<div class="fixed top-20 right-6 z-[100] transform translate-x-[150%] transition-transform duration-500" id="toast">
+<div class="bg-success-safe text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
+<span class="material-symbols-outlined">check_circle</span>
+<p class="text-label-md font-label-md">Rapor başarıyla oluşturuldu!</p>
+</div>
+</div>
+<script>
+        // Micro-interactions and effects
+        window.addEventListener('DOMContentLoaded', () => {
+            // Animate bar charts on load
+            const bars = document.querySelectorAll('.chart-bar');
+            bars.forEach(bar => {
+                const finalHeight = bar.style.height;
+                bar.style.height = '0';
+                setTimeout(() => {
+                    bar.style.height = finalHeight;
+                }, 300);
+            });
+
+            // Demo toast interaction for PDF download
+            const pdfBtn = document.querySelector('button:contains("PDF Raporu İndir")') || document.querySelectorAll('button')[1];
+            if (pdfBtn) {
+                pdfBtn.addEventListener('click', () => {
+                    const toast = document.getElementById('toast');
+                    toast.style.transform = 'translateX(0)';
+                    setTimeout(() => {
+                        toast.style.transform = 'translateX(150%)';
+                    }, 3000);
+                });
+            }
+        });
+
+        // Search highlight effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('border-primary');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('border-primary');
+        });
+    </script>
+</body></html>
