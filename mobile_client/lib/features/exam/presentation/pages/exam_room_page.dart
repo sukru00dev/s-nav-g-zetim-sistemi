@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:noise_meter/noise_meter.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/network/dio_client.dart';
@@ -84,7 +83,6 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
     _faceDetector.close();
     _noiseSubscription?.cancel();
     _connectivitySubscription?.cancel();
-    _removeSecureFlags();
     super.dispose();
   }
 
@@ -135,10 +133,6 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
 
   // Gözetim Altyapısını Başlat
   Future<void> _initializeProctoring() async {
-    try {
-      await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-    } catch (_) {}
-
     _faceDetector = FaceDetector(
       options: FaceDetectorOptions(
         performanceMode: FaceDetectorMode.fast,
@@ -147,13 +141,6 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
 
     _startNoiseMonitoring();
     _initializeCamera();
-  }
-
-  // Ekran Güvenliği Bayrağını Kaldır
-  Future<void> _removeSecureFlags() async {
-    try {
-      await FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
-    } catch (_) {}
   }
 
   // Kamerayı Başlat ve Görüntü Akışını Dinle
