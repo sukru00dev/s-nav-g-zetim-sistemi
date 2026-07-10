@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/auth/Login';
 import ResetPassword from './pages/auth/ResetPassword';
 import ActivateAccount from './pages/auth/ActivateAccount';
+import Register from './pages/auth/Register';
 
 // Layouts
 import AdminLayout from './layouts/AdminLayout';
@@ -54,6 +55,7 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/activate" element={<ActivateAccount />} />
+      <Route path="/register" element={<Register />} />
       
       {/* 🛠️ Admin Paneli (Sistem Yöneticisi) */}
       <Route path="/admin" element={
