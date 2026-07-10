@@ -47,9 +47,9 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     setState(() {});
   }
 
-  void _onOtpKeyDown(int index, RawKeyEvent event) {
+  void _onOtpKeyDown(int index, KeyEvent event) {
     // Backspace tuşuna basıldığında ve kutu boşken bir öncekine dön
-    if (event is RawKeyDownEvent && event.logicalKey == LogicalKeyboardKey.backspace) {
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_controllers[index].text.isEmpty && index > 0) {
         _controllers[index - 1].clear();
         _focusNodes[index - 1].requestFocus();
@@ -173,7 +173,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                         Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: AppTheme.surfaceDark.withOpacity(0.85),
+                            color: AppTheme.surfaceDark.withValues(alpha: 0.85),
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(color: const Color(0xFF334155), width: 0.8),
                           ),
@@ -187,9 +187,9 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                                   return SizedBox(
                                     width: 44,
                                     height: 56,
-                                    child: RawKeyboardListener(
+                                    child: KeyboardListener(
                                       focusNode: FocusNode(canRequestFocus: false),
-                                      onKey: (event) => _onOtpKeyDown(index, event),
+                                      onKeyEvent: (event) => _onOtpKeyDown(index, event),
                                       child: TextField(
                                         controller: _controllers[index],
                                         focusNode: _focusNodes[index],

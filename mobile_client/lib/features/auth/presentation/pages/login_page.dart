@@ -109,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
                   height: 300,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.indigo.withOpacity(0.15),
+                    color: Colors.indigo.withValues(alpha: 0.15),
                   ),
                 ),
               ),
@@ -132,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 15,
                                 offset: const Offset(0, 5),
                               ),
@@ -141,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Image.asset(
                             'assets/images/logo.png', // Logo asset
                             fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (context, error, stackTrace) => const Icon(
                               Icons.school,
                               size: 40,
                               color: AppTheme.primaryNavy,
@@ -168,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                         Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: AppTheme.surfaceDark.withOpacity(0.85),
+                            color: AppTheme.surfaceDark.withValues(alpha: 0.85),
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
                               color: const Color(0xFF334155),
@@ -242,9 +242,9 @@ class _LoginPageState extends State<LoginPage> {
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.primaryNavy.withOpacity(0.2),
+                                    color: AppTheme.primaryNavy.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: Colors.indigo.withOpacity(0.2)),
+                                    border: Border.all(color: Colors.indigo.withValues(alpha: 0.2)),
                                   ),
                                   child: const Row(
                                     children: [

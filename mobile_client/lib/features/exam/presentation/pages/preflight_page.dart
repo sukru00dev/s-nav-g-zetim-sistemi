@@ -180,9 +180,9 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppTheme.errorRed.withOpacity(0.08),
+                      color: AppTheme.errorRed.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.errorRed.withOpacity(0.2)),
+                      border: Border.all(color: AppTheme.errorRed.withValues(alpha: 0.2)),
                     ),
                     child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +275,7 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
         color: AppTheme.surfaceDark,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isGranted ? AppTheme.successGreen.withOpacity(0.3) : const Color(0xFF334155),
+          color: isGranted ? AppTheme.successGreen.withValues(alpha: 0.3) : const Color(0xFF334155),
           width: isGranted ? 1.2 : 0.8,
         ),
       ),

@@ -45,7 +45,7 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Image.asset(
                 'assets/images/logo.png',
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Icon(Icons.school, size: 20, color: AppTheme.primaryNavy),
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.school, size: 20, color: AppTheme.primaryNavy),
               ),
             ),
             const SizedBox(width: 10),
@@ -114,7 +114,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.indigo.withOpacity(0.3), width: 1),
+                      border: Border.all(color: Colors.indigo.withValues(alpha: 0.3), width: 1),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +218,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: exams.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 16),
+                          separatorBuilder: (_, index) => const SizedBox(height: 16),
                           itemBuilder: (context, index) {
                             final exam = exams[index];
                             return _buildExamCard(context, exam);
@@ -270,7 +270,7 @@ class _DashboardPageState extends State<DashboardPage> {
         color: AppTheme.surfaceDark,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isActive ? AppTheme.accentGold.withOpacity(0.3) : const Color(0xFF334155),
+          color: isActive ? AppTheme.accentGold.withValues(alpha: 0.3) : const Color(0xFF334155),
           width: isActive ? 1.5 : 0.8,
         ),
       ),
@@ -290,9 +290,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryNavy.withOpacity(0.4),
+                        color: AppTheme.primaryNavy.withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: Colors.indigo.withOpacity(0.2)),
+                        border: Border.all(color: Colors.indigo.withValues(alpha: 0.2)),
                       ),
                       child: Text(
                         exam.branchName,
@@ -392,7 +392,7 @@ class _DashboardPageState extends State<DashboardPage> {
               decoration: BoxDecoration(
                 color: isActive
                     ? AppTheme.accentGold
-                    : const Color(0xFF1E293B).withOpacity(0.6),
+                    : const Color(0xFF1E293B).withValues(alpha: 0.6),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(15),
                   bottomRight: Radius.circular(15),

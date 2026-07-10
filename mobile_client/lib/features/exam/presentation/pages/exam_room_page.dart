@@ -487,12 +487,11 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
   }
 
   Future<void> _executeSubmit() async {
+    final client = context.read<DioClient>();
     setState(() => _isLoadingQuestions = true);
     
     // Senkronize edilmemiş yerel cevaplar varsa önce onları zorla eşitle
     await _syncOfflineData();
-
-    final client = context.read<DioClient>();
     try {
       final endPath = ApiConstants.endSession.replaceAll('{examId}', widget.exam.id.toString());
       await client.post(endPath);
@@ -581,7 +580,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
-              color: _remainingSeconds < 120 ? AppTheme.errorRed.withOpacity(0.2) : Colors.black26,
+              color: _remainingSeconds < 120 ? AppTheme.errorRed.withValues(alpha: 0.2) : Colors.black26,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _remainingSeconds < 120 ? AppTheme.errorRed : AppTheme.accentGold,
@@ -698,7 +697,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
                       return Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppTheme.primaryNavy.withOpacity(0.3) : AppTheme.surfaceDark,
+                          color: isSelected ? AppTheme.primaryNavy.withValues(alpha: 0.3) : AppTheme.surfaceDark,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: isSelected ? AppTheme.accentGold : const Color(0xFF334155),
