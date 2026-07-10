@@ -40,6 +40,11 @@ exports.getLogsByExam = async (req, res) => {
         });
         if (!exam) return res.status(404).json({ message: 'Sınav bulunamadı' });
 
+        // Güvenlik: Öğrenciler sınav gözetim loglarını göremez
+        if (req.user && req.user.role === 'Öğrenci') {
+            return res.status(403).json({ message: 'Bu işlem için yetkiniz bulunmamaktadır.' });
+        }
+
         if (req.user && req.user.role === 'Akademisyen' && exam.teacherId !== req.user.id) {
             return res.status(403).json({ message: 'Bu sınavın loglarına erişim yetkiniz bulunmamaktadır.' });
         }

@@ -52,6 +52,40 @@ exports.getExamById = async (req, res) => {
             return res.status(404).json({ message: 'Sınav bulunamadı' });
         }
 
+        // Güvenlik: Öğrenci yetki ve zaman kontrolleri (Sınav sorularına sadece aktif sınav zamanında ve şubeye kayıtlıysa erişebilir)
+        if (req.user && req.user.role === 'Öğrenci') {
+            const student = await prisma.user.findUnique({
+                where: { id: req.user.id },
+                include: { branches: { select: { id: true } } }
+            });
+            const enrolledBranchIds = student?.branches.map(b => b.id) || [];
+            
+            if (enrolledBranchIds.length > 0 && !enrolledBranchIds.includes(exam.branchId)) {
+                return res.status(403).json({ message: 'Bu sınavın şubesine kayıtlı değilsiniz.' });
+            }
+
+            const now = new Date();
+            // 5 dakika tolerans payı verilerek öğrencilerin preflight işlemlerinde sorun yaşamasını önleyelim
+            const startTimeWithTolerance = new Date(exam.startTime.getTime() - 5 * 60 * 1000);
+            if (now < startTimeWithTolerance) {
+                return res.status(403).json({ message: 'Sınav henüz başlamadı. Sınav sorularına erişemezsiniz.' });
+            }
+            if (now > exam.endTime) {
+                return res.status(403).json({ message: 'Sınav süresi tamamlandı. Sorulara erişemezsiniz.' });
+            }
+        }
+
+        // Güvenlik: Öğrenci rolündeki kullanıcılardan şıkların doğruluk bilgisini (isCorrect) gizle
+        if (req.user && req.user.role === 'Öğrenci' && exam.questions) {
+            exam.questions.forEach(question => {
+                if (question.options) {
+                    question.options.forEach(option => {
+                        delete option.isCorrect;
+                    });
+                }
+            });
+        }
+
         res.json(exam);
     } catch (error) {
         res.status(500).json({ message: 'Sınav getirilirken hata oluştu' });

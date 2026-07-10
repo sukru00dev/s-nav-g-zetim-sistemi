@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/device_utils.dart';
@@ -189,6 +190,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                   keyboardType: TextInputType.number,
                                   maxLength: 11,
                                   style: const TextStyle(color: Colors.white, fontSize: 13),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
                                   decoration: const InputDecoration(
                                     labelText: 'T.C. Kimlik No',
                                     prefixIcon: Icon(Icons.badge_outlined, size: 18),
@@ -216,6 +220,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                         keyboardType: TextInputType.number,
                                         maxLength: 4,
                                         style: const TextStyle(color: Colors.white, fontSize: 13),
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly,
+                                        ],
                                         decoration: const InputDecoration(
                                           labelText: 'Doğum Yılı',
                                           counterText: '',

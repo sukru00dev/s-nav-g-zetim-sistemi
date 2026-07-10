@@ -168,6 +168,11 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: 'Geçersiz kimlik bilgileri' });
         }
 
+        // Kullanıcı hesap aktifliği kontrolü
+        if (!user.isActive) {
+            return res.status(403).json({ message: 'Hesabınız aktif değildir. Lütfen sistem yöneticinizle iletişime geçin.' });
+        }
+
         // E-posta doğrulama kontrolü (Öğrenciler için zorunlu)
         if (user.role.name_tr === 'Öğrenci' && !user.is_email_verified) {
             return res.status(403).json({ message: 'Lütfen e-posta adresinizi doğrulayın. Aktivasyon kodu e-postanıza gönderilmiştir.' });

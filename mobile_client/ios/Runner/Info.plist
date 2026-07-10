@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Sınav gözetimi için kamera kullanımı gereklidir.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Sınav gözetimi için ortam sesinin kontrol edilmesi gereklidir.</string>
 </dict>
 </plist>

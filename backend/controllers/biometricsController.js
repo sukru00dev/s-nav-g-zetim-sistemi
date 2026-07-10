@@ -74,16 +74,20 @@ exports.logBiometrics = async (req, res) => {
                 }
             });
 
-            // ExamSession riskScore'unu güncelle (max 100 olacak şekilde)
-            const currentSession = await prisma.examSession.findUnique({
-                where: { id: parsedSessionId }
+            // ExamSession riskScore'unu güncelle (Atomic Increment ile yarış durumunu engelle)
+            const updatedSession = await prisma.examSession.update({
+                where: { id: parsedSessionId },
+                data: {
+                    riskScore: {
+                        increment: addedRisk
+                    }
+                }
             });
 
-            if (currentSession) {
-                const newScore = Math.min(currentSession.riskScore + addedRisk, 100);
+            if (updatedSession.riskScore > 100) {
                 await prisma.examSession.update({
                     where: { id: parsedSessionId },
-                    data: { riskScore: newScore }
+                    data: { riskScore: 100 }
                 });
             }
         }

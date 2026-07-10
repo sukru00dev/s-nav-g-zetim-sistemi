@@ -15,6 +15,7 @@ class ApiConstants {
   // Exams & Sessions Endpoints
   static const String getStudentExams = '/users/me/exams';
   static const String startSession = '/exams/{examId}/session/start';
+  static const String getSession = '/exams/session/{sessionId}';
   static const String submitAnswer = '/exams/{examId}/session/answer';
   static const String endSession = '/exams/{examId}/session/end';
   static const String logBiometrics = '/biometrics/log';

@@ -31,7 +31,7 @@ class ExamModel {
       description: json['description'] as String? ?? '',
       startTime: DateTime.parse(json['startTime'] as String),
       endTime: DateTime.parse(json['endTime'] as String),
-      duration: json['duration'] as int? ?? 0,
+      duration: json['duration'] as int? ?? json['durationMin'] as int? ?? 0,
       branchName: json['branchName'] as String? ?? 'Genel',
       teacherName: teacherName.isEmpty ? 'Bilinmiyor' : teacherName,
     );

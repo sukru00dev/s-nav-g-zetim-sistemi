@@ -64,6 +64,11 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
   bool _isSyncing = false;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
+  // Canlı Oturum Durumu ve Uyarı Takibi
+  Timer? _sessionPollingTimer;
+  String _sessionStatus = 'ONGOING';
+  int? _lastSeenWarningId;
+
   @override
   void initState() {
     super.initState();
@@ -73,12 +78,14 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
     _fetchQuestions();
     _initializeProctoring();
     _setupConnectivity();
+    _startSessionPolling();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _countdownTimer?.cancel();
+    _sessionPollingTimer?.cancel();
     _cameraController?.dispose();
     _faceDetector.close();
     _noiseSubscription?.cancel();
@@ -98,6 +105,71 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
         _autoSubmitExam();
       }
     });
+  }
+
+  // Canlı Oturum Durumu ve Akademisyen Uyarı Takibi (Poller)
+  void _startSessionPolling() {
+    _sessionPollingTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_isLoadingQuestions || !_isOnline) return;
+      _pollSessionStatus();
+    });
+  }
+
+  Future<void> _pollSessionStatus() async {
+    final client = context.read<DioClient>();
+    try {
+      final path = ApiConstants.getSession.replaceAll('{sessionId}', widget.sessionId.toString());
+      final response = await client.get(path);
+      final data = response.data as Map<String, dynamic>;
+      
+      final String status = data['status'] as String? ?? 'ONGOING';
+      final List<dynamic> logs = data['logs'] as List<dynamic>? ?? [];
+
+      if (mounted) {
+        setState(() {
+          _sessionStatus = status;
+        });
+
+        // Akademisyen tarafından yeni bir uyarı gönderildiyse ekranda göster
+        if (logs.isNotEmpty) {
+          final warningLog = logs[0] as Map<String, dynamic>;
+          final warningId = warningLog['id'] as int;
+          final description = warningLog['description'] as String? ?? '';
+
+          if (_lastSeenWarningId != warningId) {
+            _lastSeenWarningId = warningId;
+            _showWarningDialog(description);
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
+  void _showWarningDialog(String message) {
+    // Akademisyen uyarısı kısmını temizleyip gösterelim
+    final cleanMessage = message.replaceAll('Akademisyen uyarısı: ', '').replaceAll('"', '');
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.surfaceDark,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: AppTheme.errorRed),
+            SizedBox(width: 8),
+            Text('Gözetmen Uyarısı', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: Text(cleanMessage, style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.4)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Anladım', style: TextStyle(color: AppTheme.accentGold, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
   }
 
   // Soruları Backend'den Çek
@@ -534,6 +606,56 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
       );
     }
 
+    if (_sessionStatus == 'SUSPENDED') {
+      return Scaffold(
+        backgroundColor: AppTheme.bgDark,
+        body: Center(
+          child: Container(
+            margin: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceDark,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppTheme.warningOrange, width: 1.5),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.pause_circle_outline,
+                  color: AppTheme.warningOrange,
+                  size: 64,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Sınavınız Duraklatıldı',
+                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Sınav gözetmeniniz tarafından bu oturum askıya alınmıştır. Lütfen gözetmeninizin talimatlarına uyunuz.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppTheme.textSecondary, fontSize: 12, height: 1.5),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.warningOrange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text(
+                    'Durum: SUSPENDED (Askıda)',
+                    style: TextStyle(color: AppTheme.warningOrange, fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     if (_errorLoading.isNotEmpty) {
       return Scaffold(
         appBar: AppBar(title: const Text('Sınav Odası')),
@@ -777,7 +899,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
                               _currentQuestionIndex++;
                             });
                           }
-                        : null,
+                        : _submitExam,
                     child: Row(
                       children: [
                         Text(_currentQuestionIndex == _questions.length - 1 ? 'Sınavı Bitir' : 'Sonraki'),
