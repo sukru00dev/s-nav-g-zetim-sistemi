@@ -6,7 +6,8 @@ const RISK_WEIGHTS = {
     'MULTIPLE_FACES': 40,
     'TAB_SWITCH': 10,
     'LOCKDOWN_VIOLATION': 15,
-    'VOICE_DETECTED': 20
+    'VOICE_DETECTED': 20,
+    'LOOKING_AWAY': 15
 };
 
 exports.logBiometrics = async (req, res) => {

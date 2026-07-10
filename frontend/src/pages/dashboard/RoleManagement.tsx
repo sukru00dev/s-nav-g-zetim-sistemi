@@ -69,7 +69,7 @@ export default function RoleManagement() {
     setErrorMsg('');
     setSuccessMsg('');
     try {
-      await api.post('/auth/register', { ...formData, roleId: Number(formData.roleId) });
+      await api.post('/auth/register', { ...formData, roleId: Number(formData.roleId) }, token);
       setSuccessMsg('Kullanıcı başarıyla oluşturuldu.');
       setIsModalOpen(false);
       setFormData({ tc_kimlik: '', forename: '', surname: '', email: '', username: '', password: '', roleId: 2, yearOfBirth: 1990 });

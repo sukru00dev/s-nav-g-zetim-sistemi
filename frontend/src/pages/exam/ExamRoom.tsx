@@ -93,6 +93,32 @@ export default function ExamRoom() {
   const [pingVal, setPingVal]             = useState<number | null>(null);
   const [checking, setChecking]           = useState(false);
 
+  // ── logEvent ve logEventRef Tanımlamaları (React Hoisting & Stale Closure Çözümü) ──
+  const logEvent = useCallback(async (type: string, evStatus: string) => {
+    if (!sessionId || !examData || !examData.questions || examData.questions.length === 0) return;
+    const q = examData.questions[currentIndex] || examData.questions[0];
+    if (!q || !q.id) return;
+
+    // KİŞİSEL VERİ GÜVENLİĞİ: Görüntü kaydı kesinlikle alınmaz
+    const photoUrl = null;
+
+    try {
+      await api.post('/biometrics/log', {
+        sessionId: parseInt(sessionId),
+        questionId: q.id,
+        type,
+        status: evStatus,
+        photoUrl,
+        screenshotUrl: photoUrl
+      }, token);
+    } catch { /* sessizce devam */ }
+  }, [sessionId, examData, currentIndex, token]);
+
+  const logEventRef = useRef(logEvent);
+  useEffect(() => {
+    logEventRef.current = logEvent;
+  }, [logEvent]);
+
   const startPreflightCheck = async () => {
     setChecking(true);
     setPreflightCam('pending');
@@ -230,6 +256,8 @@ export default function ExamRoom() {
     return () => clearInterval(interval);
   }, [status, sessionId, token]);
 
+
+
   // ── Kamera analiz döngüsü ───────────────────────────────────
   useEffect(() => {
     if (!modelsLoaded || status !== 'in-progress') return;
@@ -242,11 +270,11 @@ export default function ExamRoom() {
       if (detections.length === 0) {
         setFaceOk(false);
         addWarning('⚠️ Yüzünüz kamerada görünmüyor!');
-        logEvent('FACE', 'NO_FACE');
+        logEventRef.current('FACE', 'NO_FACE');
       } else if (detections.length > 1) {
         setFaceOk(false);
         addWarning('⚠️ Kamerada birden fazla kişi tespit edildi!');
-        logEvent('FACE', 'MULTIPLE_FACES');
+        logEventRef.current('FACE', 'MULTIPLE_FACES');
       } else {
         setFaceOk(true);
       }
@@ -292,7 +320,7 @@ export default function ExamRoom() {
             highAudioCounter++;
             if (highAudioCounter >= 3) { // Ardışık 3 saniye yüksek ses
               addWarning('⚠️ Ortamda yüksek ses veya konuşma tespit edildi!');
-              logEvent('VOICE', 'VOICE_DETECTED');
+              logEventRef.current('VOICE', 'VOICE_DETECTED');
               highAudioCounter = 0; // Sayacı sıfırla
             }
           } else {
@@ -323,20 +351,20 @@ export default function ExamRoom() {
     const onVisibility = () => {
       if (document.hidden) {
         addWarning('⚠️ Sınav sekmesini terk ettiniz! Bu hareket kaydedildi.');
-        logEvent('SCREEN', 'TAB_SWITCH');
+        logEventRef.current('SCREEN', 'TAB_SWITCH');
       }
     };
 
     const onContextMenu = (e: MouseEvent) => {
       e.preventDefault();
       addWarning('⚠️ Sağ tık menüsü bu sınavda engellenmiştir!');
-      logEvent('SCREEN', 'LOCKDOWN_VIOLATION');
+      logEventRef.current('SCREEN', 'LOCKDOWN_VIOLATION');
     };
 
     const onClipboard = (e: ClipboardEvent) => {
       e.preventDefault();
       addWarning('⚠️ Kopyalama, kesme ve yapıştırma işlemleri engellenmiştir!');
-      logEvent('SCREEN', 'LOCKDOWN_VIOLATION');
+      logEventRef.current('SCREEN', 'LOCKDOWN_VIOLATION');
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -344,19 +372,19 @@ export default function ExamRoom() {
       if (e.key === 'F12') {
         e.preventDefault();
         addWarning('⚠️ Geliştirici araçlarını açmak yasaktır!');
-        logEvent('SCREEN', 'LOCKDOWN_VIOLATION');
+        logEventRef.current('SCREEN', 'LOCKDOWN_VIOLATION');
       }
       // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (Geliştirici konsolu kısayolları)
       if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) {
         e.preventDefault();
         addWarning('⚠️ Geliştirici araçlarını açmak yasaktır!');
-        logEvent('SCREEN', 'LOCKDOWN_VIOLATION');
+        logEventRef.current('SCREEN', 'LOCKDOWN_VIOLATION');
       }
       // Ctrl+U (Sayfa kaynağını görüntüleme)
       if (e.ctrlKey && e.key === 'u') {
         e.preventDefault();
         addWarning('⚠️ Sayfa kaynağını görüntülemek yasaktır!');
-        logEvent('SCREEN', 'LOCKDOWN_VIOLATION');
+        logEventRef.current('SCREEN', 'LOCKDOWN_VIOLATION');
       }
     };
 
@@ -378,28 +406,35 @@ export default function ExamRoom() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
+  // ── Tek Giriş Sınırı: Ekranı Terk Etme ve Sonlandırma ───────────────────
+  useEffect(() => {
+    const handleUnload = () => {
+      if (status === 'in-progress' && examId && sessionId) {
+        const url = `${import.meta.env.VITE_API_URL ?? '/api'}/exams/${examId}/session/end`;
+        const headers = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        };
+        fetch(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({}),
+          keepalive: true
+        }).catch(() => {});
+      }
+    };
+
+    window.addEventListener('beforeunload', handleUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleUnload);
+      if (status === 'in-progress') {
+        handleUnload();
+      }
+    };
+  }, [status, examId, sessionId, token]);
+
   // ── Yardımcı fonksiyonlar ───────────────────────────────────
   const addWarning = (msg: string) => setWarnings(prev => [msg, ...prev].slice(0, 10));
-
-  const logEvent = useCallback(async (type: string, evStatus: string) => {
-    if (!sessionId || !examData || !examData.questions || examData.questions.length === 0) return;
-    const q = examData.questions[currentIndex] || examData.questions[0];
-    if (!q || !q.id) return;
-
-    // KİŞİSEL VERİ GÜVENLİĞİ: Görüntü kaydı kesinlikle alınmaz
-    const photoUrl = null;
-
-    try {
-      await api.post('/biometrics/log', {
-        sessionId: parseInt(sessionId),
-        questionId: q.id,
-        type,
-        status: evStatus,
-        photoUrl,
-        screenshotUrl: photoUrl
-      }, token);
-    } catch { /* sessizce devam */ }
-  }, [sessionId, examData, currentIndex, token]);
 
   // ── Yanıt kaydetme ─────────────────────────────────────────
   const handleAnswer = useCallback(async (questionId: number, value: number | string) => {
@@ -747,7 +782,7 @@ export default function ExamRoom() {
                 <div className="border border-slate-700 rounded-xl overflow-hidden">
                   <ConditionalQuestion
                     questionId={currentQ.id}
-                    questionText=""
+                    questionText={currentQ.text}
                     options={currentQ.options}
                     initialOptionId={typeof answers[currentQ.id] === 'number' ? answers[currentQ.id] as number : null}
                     onAnswer={(qId, optId) => handleAnswer(qId, optId)}

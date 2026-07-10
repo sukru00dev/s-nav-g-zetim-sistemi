@@ -9,8 +9,9 @@ const loginLimiter = rateLimit({
   max: 50, // Test ve normal kullanımda tıkanmayı önlemek için 50'ye çıkarıldı
   keyGenerator: (req) => {
     // Ortak proxy/VPN arkasındaki kullanıcıların birbirini engellemesini önlemek için IP + E-posta kombinasyonu kullanılır
-    return `${req.ip}_${req.body.email || ''}`;
+    return `${req.ip}_${req.body?.email || ''}`;
   },
+  validate: { keygenerator: false },
   message: { message: "Çok fazla giriş denemesi yaptınız. Lütfen 10 dakika sonra tekrar deneyin." }
 });
 
@@ -18,6 +19,9 @@ const loginLimiter = rateLimit({
 router.post('/login', loginLimiter, authController.login);
 router.post('/register', authController.register);
 router.post('/verify-tc', authController.verifyTc);
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
+router.get('/activate', authController.activateAccount);
 router.get('/me', authMiddleware, authController.getMe);
 
 module.exports = router;

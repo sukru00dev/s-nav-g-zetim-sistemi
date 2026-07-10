@@ -23,27 +23,39 @@ exports.verifyTc = async (req, res) => {
             DogumYili: parseInt(yearOfBirth)
         };
 
+        if (process.env.BYPASS_MERNIS === 'true') {
+            return res.json({ verified: true, message: 'Kimlik doğrulandı (MERNIS Bypassed)' });
+        }
+
         // SOAP callback'i Promise'e sar — async/await ile uyumlu, hata yönetimi güvenli
-        const result = await new Promise((resolve, reject) => {
-            soap.createClient(url, (err, client) => {
-                if (err) {
-                    console.error("SOAP Client Error:", err);
-                    return reject(new Error('NVİ Servisine bağlanılamadı'));
-                }
-                client.TCKimlikNoDogrula(args, (err, result) => {
+        try {
+            const result = await new Promise((resolve, reject) => {
+                soap.createClient(url, (err, client) => {
                     if (err) {
-                        console.error("SOAP Request Error:", err);
-                        return reject(new Error('NVİ Servis isteği başarısız'));
+                        console.error("SOAP Client Error:", err);
+                        return reject(new Error('NVİ Servisine bağlanılamadı'));
                     }
-                    resolve(result);
+                    client.TCKimlikNoDogrula(args, (err, result) => {
+                        if (err) {
+                            console.error("SOAP Request Error:", err);
+                            return reject(new Error('NVİ Servis isteği başarısız'));
+                        }
+                        resolve(result);
+                    });
                 });
             });
-        });
 
-        if (result.TCKimlikNoDogrulaResult) {
-            return res.json({ verified: true, message: 'Kimlik doğrulandı' });
-        } else {
-            return res.status(400).json({ verified: false, message: 'Kimlik doğrulanamadı, hatalı bilgi.' });
+            if (result.TCKimlikNoDogrulaResult) {
+                return res.json({ verified: true, message: 'Kimlik doğrulandı' });
+            } else {
+                return res.status(400).json({ verified: false, message: 'Kimlik doğrulanamadı, hatalı bilgi.' });
+            }
+        } catch (mernisErr) {
+            console.error('MERNIS connection failed in verifyTc:', mernisErr.message);
+            return res.status(503).json({ 
+                verified: false, 
+                message: 'Şu anda Nüfus ve Vatandaşlık İşleri (NVİ) sistemi yanıt vermiyor. Lütfen daha sonra tekrar deneyin veya sunucuda BYPASS_MERNIS=true ayarını etkinleştirin.' 
+            });
         }
     } catch (error) {
         console.error('verifyTc error:', error.message);
@@ -63,6 +75,27 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'T.C. Kimlik No tam 11 haneli olmalıdır' });
         }
 
+        // Yetki Yükseltme Güvenlik Kontrolü: Öğrenci (4) dışındaki roller için Yönetici yetkisi aranır.
+        let targetRoleId = 4;
+        const parsedRoleId = parseInt(roleId);
+        if (parsedRoleId !== 4) {
+            const token = req.header('Authorization');
+            if (!token) {
+                return res.status(403).json({ message: 'Yetkisiz rol seçimi. Sadece yöneticiler personel/protokol kaydı yapabilir.' });
+            }
+            try {
+                const tokenPart = token.startsWith('Bearer ') ? token.split(' ')[1] : token;
+                const decoded = jwt.verify(tokenPart, process.env.JWT_SECRET);
+                if (decoded.user && decoded.user.role === 'Yönetici') {
+                    targetRoleId = parsedRoleId;
+                } else {
+                    return res.status(403).json({ message: 'Bu işlem için gerekli yetkiniz bulunmamaktadır.' });
+                }
+            } catch (err) {
+                return res.status(401).json({ message: 'Geçersiz yetkilendirme anahtarı.' });
+            }
+        }
+
         const userExists = await prisma.user.findFirst({
             where: {
                 OR: [
@@ -80,22 +113,35 @@ exports.register = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        // Aktivasyon tokenı üretimi
+        const crypto = require('crypto');
+        const activationToken = crypto.randomBytes(32).toString('hex');
+
         const newUser = await prisma.user.create({
             data: {
                 username,
                 tc_kimlik,
                 email,
                 password: hashedPassword,
-                roleId: parseInt(roleId),
+                roleId: targetRoleId,
                 forename,
                 surname,
                 yearOfBirth: yearOfBirth ? parseInt(yearOfBirth) : null,
                 mac_address: mac_address || null,
-                photo: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                photo: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                isActive: false, // E-posta doğrulanana kadar inaktif
+                is_email_verified: false,
+                activation_token: activationToken
             }
         });
 
-        res.status(201).json({ message: 'Kullanıcı başarıyla oluşturuldu', userId: newUser.id });
+        // Aktivasyon maili gönderimi
+        const { sendActivationEmail } = require('../utils/emailService');
+        const frontendUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
+        const activationUrl = `${frontendUrl}/activate?token=${activationToken}`;
+        await sendActivationEmail(email, activationUrl);
+
+        res.status(201).json({ message: 'Kayıt başarılı! Hesabınızı aktifleştirmek için e-posta adresinize gönderilen linke tıklayınız.', userId: newUser.id });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Sunucu hatası' });
@@ -123,6 +169,11 @@ exports.login = async (req, res) => {
 
         if (!user) {
             return res.status(400).json({ message: 'Geçersiz kimlik bilgileri' });
+        }
+
+        // E-posta doğrulama kontrolü (Öğrenciler için zorunlu)
+        if (user.role.name_tr === 'Öğrenci' && !user.is_email_verified) {
+            return res.status(403).json({ message: 'Lütfen e-posta adresinizi doğrulayın. Aktivasyon linki e-postanıza gönderilmiştir.' });
         }
 
         // ÖNEMLİ GÜVENLİK DÜZELTMESİ: Önce şifreyi doğrula, SONRA IP/MAC güncelle
@@ -205,5 +256,172 @@ exports.getMe = async (req, res) => {
         res.json(formattedUser);
     } catch (error) {
         res.status(500).json({ message: 'Sunucu hatası' });
+    }
+};
+
+const { sendResetPasswordEmail } = require('../utils/emailService');
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { tc_kimlik, forename, surname, yearOfBirth, email } = req.body;
+        
+        if (!tc_kimlik || !forename || !surname || !yearOfBirth || !email) {
+            return res.status(400).json({ message: 'Lütfen tüm alanları doldurun.' });
+        }
+
+        // 1. MERNİS doğrulama
+        const url = 'https://tckimlik.nvi.gov.tr/Service/KPSPublic.asmx?WSDL';
+        const args = {
+            TCKimlikNo: tc_kimlik,
+            Ad: forename.toLocaleUpperCase('tr-TR'),
+            Soyad: surname.toLocaleUpperCase('tr-TR'),
+            DogumYili: parseInt(yearOfBirth)
+        };
+
+        let mernisVerified = false;
+
+        if (process.env.BYPASS_MERNIS === 'true') {
+            console.log('ℹ️ [MERNIS BYPASS] MERNIS verification bypassed due to BYPASS_MERNIS=true in .env');
+            mernisVerified = true;
+        } else {
+            try {
+                const mernisResult = await new Promise((resolve, reject) => {
+                    soap.createClient(url, (err, client) => {
+                        if (err) {
+                            console.error("SOAP Client Error:", err);
+                            return reject(new Error('NVİ Servisine bağlanılamadı'));
+                        }
+                        client.TCKimlikNoDogrula(args, (err, result) => {
+                            if (err) {
+                                console.error("SOAP Request Error:", err);
+                                return reject(new Error('NVİ Servis isteği başarısız'));
+                            }
+                            resolve(result);
+                        });
+                    });
+                });
+                mernisVerified = mernisResult.TCKimlikNoDogrulaResult;
+            } catch (mernisErr) {
+                console.error('MERNIS connection failed in forgotPassword:', mernisErr.message);
+                return res.status(503).json({ 
+                    message: 'Şu anda Nüfus ve Vatandaşlık İşleri (NVİ) sistemi yanıt vermiyor. Lütfen daha sonra tekrar deneyin veya testi kolaylaştırmak için sunucu .env dosyasına BYPASS_MERNIS=true ekleyin.' 
+                });
+            }
+        }
+
+        if (!mernisVerified) {
+            return res.status(400).json({ message: 'Kimlik doğrulanamadı, girdiğiniz bilgiler MERNİS kayıtları ile uyuşmuyor.' });
+        }
+
+        // 2. Kullanıcıyı bul
+        const user = await prisma.user.findFirst({
+            where: {
+                tc_kimlik,
+                email
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'Girdiğiniz T.C. Kimlik ve E-Posta adresi ile eşleşen bir kullanıcı bulunamadı.' });
+        }
+
+        // 3. JWT Şifre Sıfırlama Tokenı oluştur (Secret = JWT_SECRET + user.password)
+        const secret = process.env.JWT_SECRET + user.password;
+        const token = jwt.sign({ id: user.id }, secret, { expiresIn: '15m' });
+
+        // 4. Bağlantı oluştur
+        const frontendUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
+        const resetUrl = `${frontendUrl}/reset-password?token=${token}&id=${user.id}`;
+
+        // 5. E-postayı gönder
+        const mailResult = await sendResetPasswordEmail(email, resetUrl);
+
+        let responseMsg = 'Kimliğiniz doğrulandı ve şifre sıfırlama bağlantısı e-posta adresinize gönderildi.';
+        if (mailResult.messageId === 'dev-mode-logged-to-console') {
+            responseMsg = 'MERNİS Kimlik doğrulaması başarılı! (Geliştirici modu: Sıfırlama bağlantısı sunucu loguna yazdırıldı, lütfen oradan kontrol edin)';
+        }
+
+        res.json({ message: responseMsg });
+    } catch (error) {
+        console.error('forgotPassword error:', error);
+        res.status(500).json({ message: error.message || 'Şifre sıfırlama işlemi başlatılırken bir hata oluştu.' });
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { id, token, password } = req.body;
+
+        if (!id || !token || !password) {
+            return res.status(400).json({ message: 'Geçersiz istek. Eksik parametreler.' });
+        }
+
+        const userId = parseInt(id);
+        const user = await prisma.user.findUnique({
+            where: { id: userId }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Kullanıcı bulunamadı.' });
+        }
+
+        // Token doğrulama
+        const secret = process.env.JWT_SECRET + user.password;
+        let decoded;
+        try {
+            decoded = jwt.verify(token, secret);
+        } catch (err) {
+            return res.status(400).json({ message: 'Şifre sıfırlama bağlantısı geçersiz veya süresi dolmuş.' });
+        }
+
+        if (decoded.id !== user.id) {
+            return res.status(400).json({ message: 'Kullanıcı kimliği uyuşmuyor.' });
+        }
+
+        // Yeni şifreyi kaydet
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { password: hashedPassword }
+        });
+
+        res.json({ message: 'Şifreniz başarıyla güncellendi. Yeni şifrenizle giriş yapabilirsiniz.' });
+    } catch (error) {
+        console.error('resetPassword error:', error);
+        res.status(500).json({ message: 'Şifre güncellenirken sunucuda bir hata oluştu.' });
+    }
+};
+
+exports.activateAccount = async (req, res) => {
+    try {
+        const { token } = req.query;
+
+        if (!token) {
+            return res.status(400).json({ message: 'Geçersiz aktivasyon talebi. Token bulunamadı.' });
+        }
+
+        const user = await prisma.user.findFirst({
+            where: { activation_token: token }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: 'Geçersiz veya süresi dolmuş aktivasyon linki.' });
+        }
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                is_email_verified: true,
+                isActive: true,
+                activation_token: null
+            }
+        });
+
+        res.json({ message: 'Hesabınız başarıyla aktifleştirildi. Şimdi giriş yapabilirsiniz.' });
+    } catch (error) {
+        console.error('activateAccount error:', error);
+        res.status(500).json({ message: 'Aktivasyon işlemi sırasında bir hata oluştu.' });
     }
 };

@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/auth/Login';
+import ResetPassword from './pages/auth/ResetPassword';
+import ActivateAccount from './pages/auth/ActivateAccount';
 
 // Layouts
 import AdminLayout from './layouts/AdminLayout';
@@ -50,6 +52,8 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/activate" element={<ActivateAccount />} />
       
       {/* 🛠️ Admin Paneli (Sistem Yöneticisi) */}
       <Route path="/admin" element={

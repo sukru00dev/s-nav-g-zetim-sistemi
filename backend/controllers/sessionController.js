@@ -161,12 +161,19 @@ exports.updateSessionFrame = async (req, res) => {
             return res.status(404).json({ message: 'Oturum bulunamadı' });
         }
 
-        await prisma.user.update({
-            where: { id: session.userId },
-            data: { photo }
-        });
+        // Güvenlik: Sadece oturum sahibi öğrenci veya yetkili eğitmen/yönetici işlem yapabilir
+        if (session.userId !== req.user.id && req.user.role !== 'Akademisyen' && req.user.role !== 'Yönetici') {
+            return res.status(403).json({ message: 'Bu işlem için yetkiniz bulunmamaktadır.' });
+        }
 
-        res.json({ message: 'Kamera karesi güncellendi' });
+        // ÖNEMLİ MANTIK DÜZELTMESİ: user.photo alanı kullanıcının kalıcı profil resmidir, 
+        // sınav içi anlık video kareleri ile ezilmemelidir. Kalıcı veriyi korumak için güncelleme devre dışı bırakıldı.
+        // await prisma.user.update({
+        //     where: { id: session.userId },
+        //     data: { photo }
+        // });
+
+        res.json({ message: 'Kamera karesi alındı (Profil resmi ezilmesi engellendi)' });
     } catch (error) {
         console.error('updateSessionFrame error:', error);
         res.status(500).json({ message: 'Hata oluştu' });
