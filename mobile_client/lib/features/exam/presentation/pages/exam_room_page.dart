@@ -45,6 +45,8 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
   // Kamera Durumu
   CameraController? _cameraController;
   bool _isCameraInitialized = false;
+  double _cameraLeft = 16.0;
+  double _cameraTop = 80.0;
 
   // Yapay Zeka & Gözetim (Proctoring)
   late FaceDetector _faceDetector;
@@ -54,10 +56,13 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
   // Ses İzleme
   NoiseMeter? _noiseMeter;
   StreamSubscription<NoiseReading>? _noiseSubscription;
-  DateTime _lastNoiseLogTime = DateTime.now();
-
-  // Ekran Odağı İzleme
-  DateTime _lastAppFocusLogTime = DateTime.now();
+  
+  // Biyometrik Durum Gözlemcileri (State Machine)
+  String _lastFaceState = 'FACE_OK';
+  String _lastEyeState = 'NORMAL';
+  String _lastScreenState = 'TAB_RETURN';
+  String _lastVoiceState = 'VOICE_OK';
+  DateTime _lastNoiseTime = DateTime.now();
 
   // İnternet Durumu & Çevrimdışı Yönetim
   bool _isOnline = true;
@@ -146,26 +151,26 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
   }
 
   void _showWarningDialog(String message) {
-    // Akademisyen uyarısı kısmını temizleyip gösterelim
     final cleanMessage = message.replaceAll('Akademisyen uyarısı: ', '').replaceAll('"', '');
     showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
           children: [
             Icon(Icons.warning_amber_rounded, color: AppTheme.errorRed),
             SizedBox(width: 8),
-            Text('Gözetmen Uyarısı', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+            Text('Gözetmen Uyarısı', style: TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
           ],
         ),
-        content: Text(cleanMessage, style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.4)),
+        content: Text(cleanMessage, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13, height: 1.4)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Anladım', style: TextStyle(color: AppTheme.accentGold, fontWeight: FontWeight.bold)),
+            child: const Text('Anladım', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -176,10 +181,6 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
   Future<void> _fetchQuestions() async {
     final client = context.read<DioClient>();
     try {
-      await client.post(
-        ApiConstants.startSession.replaceAll('{examId}', widget.exam.id.toString()),
-      );
-      
       // Sınav altındaki soruları çek
       final examResponse = await client.get(
         '/exams/${widget.exam.id}',
@@ -208,6 +209,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
     _faceDetector = FaceDetector(
       options: FaceDetectorOptions(
         performanceMode: FaceDetectorMode.fast,
+        enableClassification: true,
       ),
     );
 
@@ -275,9 +277,36 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
       final faces = await _faceDetector.processImage(inputImage);
 
       if (faces.isEmpty) {
-        _logBiometricViolation('FACE', 'NO_FACE');
+        if (_lastFaceState != 'NO_FACE') {
+          _lastFaceState = 'NO_FACE';
+          _logBiometricViolation('FACE', 'NO_FACE');
+        }
       } else if (faces.length > 1) {
-        _logBiometricViolation('FACE', 'MULTIPLE_FACES');
+        if (_lastFaceState != 'MULTIPLE_FACES') {
+          _lastFaceState = 'MULTIPLE_FACES';
+          _logBiometricViolation('FACE', 'MULTIPLE_FACES');
+        }
+      } else {
+        if (_lastFaceState != 'FACE_OK') {
+          _lastFaceState = 'FACE_OK';
+          _logBiometricViolation('FACE', 'FACE_OK');
+        }
+
+        final face = faces.first;
+        final yaw = face.headEulerAngleY ?? 0;
+        final pitch = face.headEulerAngleX ?? 0;
+
+        if (yaw.abs() > 18.0 || pitch.abs() > 18.0) {
+          if (_lastEyeState != 'LOOKING_AWAY') {
+            _lastEyeState = 'LOOKING_AWAY';
+            _logBiometricViolation('EYE', 'LOOKING_AWAY');
+          }
+        } else {
+          if (_lastEyeState != 'NORMAL') {
+            _lastEyeState = 'NORMAL';
+            _logBiometricViolation('EYE', 'NORMAL');
+          }
+        }
       }
     } catch (_) {
     } finally {
@@ -285,32 +314,41 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
     }
   }
 
-  // Ses İzleme
   void _startNoiseMonitoring() {
     try {
       _noiseMeter = NoiseMeter();
       _noiseSubscription = _noiseMeter!.noise.listen((NoiseReading reading) {
         final db = reading.meanDecibel;
+        final now = DateTime.now();
         if (db > 75.0) {
-          final now = DateTime.now();
-          if (now.difference(_lastNoiseLogTime).inSeconds > 10) {
-            _lastNoiseLogTime = now;
+          if (_lastVoiceState != 'VOICE_DETECTED') {
+            _lastVoiceState = 'VOICE_DETECTED';
             _logBiometricViolation('VOICE', 'VOICE_DETECTED');
+          }
+          _lastNoiseTime = now;
+        } else {
+          if (_lastVoiceState == 'VOICE_DETECTED' && now.difference(_lastNoiseTime).inSeconds > 8) {
+            _lastVoiceState = 'VOICE_OK';
+            _logBiometricViolation('VOICE', 'VOICE_OK');
           }
         }
       }, onError: (_) {});
     } catch (_) {}
   }
 
-  // Uygulamadan Çıkma / Arka Plana Geçme Takibi
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
-      final now = DateTime.now();
-      if (now.difference(_lastAppFocusLogTime).inSeconds > 5) {
-        _lastAppFocusLogTime = now;
+      if (_lastScreenState != 'TAB_SWITCH') {
+        _lastScreenState = 'TAB_SWITCH';
         _logBiometricViolation('SCREEN', 'TAB_SWITCH');
       }
+    } else if (state == AppLifecycleState.resumed) {
+      if (_lastScreenState != 'TAB_RETURN') {
+        _lastScreenState = 'TAB_RETURN';
+        _logBiometricViolation('SCREEN', 'TAB_RETURN');
+      }
+      _syncOfflineData();
     }
   }
 
@@ -324,13 +362,12 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
       });
 
       if (hasConn) {
-        // İnternet geri geldiğinde yerel kuyruğu senkronize et
         _syncOfflineData();
       }
     });
   }
 
-  // Çevrimdışıyken kaydedilen yerel cevapları belleğe yükle (UI senkronu için)
+  // Çevrimdışıyken kaydedilen yerel cevapları belleğe yükle
   void _loadBufferedAnswers() {
     final rawAnswers = LocalDbManager.getString('offline_answers');
     if (rawAnswers != null) {
@@ -359,13 +396,11 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
       } catch (_) {}
     }
 
-    // Eski cevabı varsa listeden çıkar
     list.removeWhere((item) => item['questionId'] == questionId);
     list.add(payload);
     
     await LocalDbManager.setString('offline_answers', jsonEncode(list));
 
-    // UI'da kaydedildi olarak göster
     setState(() {
       _savingStatus[questionId] = false;
     });
@@ -415,7 +450,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
     }
   }
 
-  // Cevabı Kaydet (Anlık Gönderim)
+  // Cevabı Kaydet
   Future<void> _saveAnswer(int questionId, dynamic answerValue) async {
     setState(() {
       _selectedAnswers[questionId] = answerValue;
@@ -451,7 +486,6 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
         });
       }
     } catch (_) {
-      // API hatası durumunda yerelde tamponla
       await _bufferAnswerLocally(questionId, answerPayload);
       if (mounted) {
         setState(() {
@@ -461,7 +495,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
     }
   }
 
-  // Çevrimdışı Verileri Senkronize Et (Sync Queue)
+  // Çevrimdışı Verileri Senkronize Et
   Future<void> _syncOfflineData() async {
     if (_isSyncing || !_isOnline) return;
     _isSyncing = true;
@@ -482,7 +516,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
             await client.post(submitPath, data: payload);
             remaining.remove(payload);
           } catch (_) {
-            break; // Bağlantı koptuysa eşitlemeyi yarıda kes
+            break; 
           }
         }
 
@@ -526,9 +560,10 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
-        title: const Text('Sınavı Bitir'),
-        content: const Text('Sınavı sonlandırmak ve cevaplarınızı göndermek istediğinize emin misiniz? Bu işlem geri alınamaz.'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        title: const Text('Sınavı Bitir', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
+        content: const Text('Sınavı sonlandırmak ve cevaplarınızı göndermek istediğinize emin misiniz? Bu işlem geri alınamaz.', style: TextStyle(color: AppTheme.textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -547,7 +582,6 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
     }
   }
 
-  // Zaman bittiğinde otomatik tamamlama
   void _autoSubmitExam() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -562,7 +596,6 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
     final client = context.read<DioClient>();
     setState(() => _isLoadingQuestions = true);
     
-    // Senkronize edilmemiş yerel cevaplar varsa önce onları zorla eşitle
     await _syncOfflineData();
     try {
       final endPath = ApiConstants.endSession.replaceAll('{examId}', widget.exam.id.toString());
@@ -601,22 +634,25 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
     if (_isLoadingQuestions) {
       return const Scaffold(
         body: Center(
-          child: CircularProgressIndicator(color: AppTheme.accentGold),
+          child: CircularProgressIndicator(color: AppTheme.primaryBlue),
         ),
       );
     }
 
     if (_sessionStatus == 'SUSPENDED') {
       return Scaffold(
-        backgroundColor: AppTheme.bgDark,
+        backgroundColor: AppTheme.bgLight,
         body: Center(
           child: Container(
             margin: const EdgeInsets.all(24),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceDark,
-              borderRadius: BorderRadius.circular(24),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppTheme.warningOrange, width: 1.5),
+              boxShadow: [
+                BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10),
+              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -629,7 +665,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
                 const SizedBox(height: 16),
                 const Text(
                   'Sınavınız Duraklatıldı',
-                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
                 const Text(
@@ -642,7 +678,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: AppTheme.warningOrange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
                     'Durum: SUSPENDED (Askıda)',
@@ -658,6 +694,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
 
     if (_errorLoading.isNotEmpty) {
       return Scaffold(
+        backgroundColor: AppTheme.bgLight,
         appBar: AppBar(title: const Text('Sınav Odası')),
         body: Center(
           child: Padding(
@@ -667,7 +704,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
               children: [
                 const Icon(Icons.error_outline, color: AppTheme.errorRed, size: 54),
                 const SizedBox(height: 16),
-                Text(_errorLoading, style: const TextStyle(color: Colors.white), textAlign: TextAlign.center),
+                Text(_errorLoading, style: const TextStyle(color: AppTheme.textPrimary), textAlign: TextAlign.center),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {
@@ -693,17 +730,18 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
     final isSaving = _savingStatus[questionId] ?? false;
 
     return Scaffold(
+      backgroundColor: AppTheme.bgLight,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(widget.exam.title, style: const TextStyle(fontSize: 14)),
         actions: [
-          // Dairesel Geri Sayım Sayacı
+          // Geri Sayım Sayacı (Stitch Lacivert/Kırmızı)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
-              color: _remainingSeconds < 120 ? AppTheme.errorRed.withValues(alpha: 0.2) : Colors.black26,
-              borderRadius: BorderRadius.circular(12),
+              color: _remainingSeconds < 120 ? AppTheme.errorRed.withValues(alpha: 0.1) : Colors.black12,
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: _remainingSeconds < 120 ? AppTheme.errorRed : AppTheme.accentGold,
                 width: 1,
@@ -726,7 +764,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.exit_to_app, color: AppTheme.errorRed),
+            icon: const Icon(Icons.exit_to_app, color: Colors.white),
             onPressed: _submitExam,
           )
         ],
@@ -748,7 +786,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
                     Icon(Icons.wifi_off, color: Colors.white, size: 14),
                     SizedBox(width: 8),
                     Text(
-                      'İnternet bağlantınız koptu. Cevaplarınız cihaza güvenle yedekleniyor.',
+                      'İnternet bağlantınız koptu. Cevaplarınız cihaza yedekleniyor.',
                       style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -767,7 +805,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
                   children: [
                     Text(
                       'Soru ${_currentQuestionIndex + 1} / ${_questions.length}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.accentGold),
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryBlue, fontSize: 14),
                     ),
                     if (isSaving)
                       const Row(
@@ -775,7 +813,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
                           SizedBox(
                             width: 10,
                             height: 10,
-                            child: CircularProgressIndicator(strokeWidth: 1.5, color: AppTheme.accentGold),
+                            child: CircularProgressIndicator(strokeWidth: 1.5, color: AppTheme.primaryBlue),
                           ),
                           SizedBox(width: 6),
                           Text('Kaydediliyor...', style: TextStyle(color: AppTheme.textSecondary, fontSize: 10)),
@@ -791,22 +829,25 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
                       )
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
                 // Soru Metni Kartı
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceDark,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF334155), width: 0.8),
+                    border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 5),
+                    ],
                   ),
                   child: Text(
                     questionText,
-                    style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.5, fontWeight: FontWeight.bold),
+                    style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14, height: 1.5, fontWeight: FontWeight.bold),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
                 // Şıklar
                 Expanded(
@@ -819,35 +860,39 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
                       return Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppTheme.primaryNavy.withValues(alpha: 0.3) : AppTheme.surfaceDark,
+                          color: isSelected ? AppTheme.primaryBlue.withValues(alpha: 0.06) : Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? AppTheme.accentGold : const Color(0xFF334155),
-                            width: isSelected ? 1.2 : 0.8,
+                            color: isSelected ? AppTheme.primaryBlue : const Color(0xFFE2E8F0),
+                            width: isSelected ? 1.5 : 1.0,
                           ),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withValues(alpha: 0.01), blurRadius: 2),
+                          ],
                         ),
                         child: ListTile(
                           onTap: () => _saveAnswer(questionId, optId),
                           leading: Container(
-                            width: 24,
-                            height: 24,
+                            width: 22,
+                            height: 22,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: isSelected ? AppTheme.accentGold : Colors.transparent,
+                              color: isSelected ? AppTheme.primaryBlue : Colors.transparent,
                               border: Border.all(
-                                color: isSelected ? AppTheme.accentGold : const Color(0xFF64748B),
+                                color: isSelected ? AppTheme.primaryBlue : const Color(0xFFCBD5E1),
                                 width: 1.5,
                               ),
                             ),
                             child: isSelected
-                                ? const Icon(Icons.check, size: 14, color: AppTheme.primaryNavy)
+                                ? const Icon(Icons.check, size: 12, color: Colors.white)
                                 : null,
                           ),
                           title: Text(
                             optText,
                             style: TextStyle(
-                              color: isSelected ? Colors.white : AppTheme.textSecondary,
+                              color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
                               fontSize: 13,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                             ),
                           ),
                         ),
@@ -865,8 +910,11 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
             left: 0,
             right: 0,
             child: Container(
-              color: AppTheme.surfaceDark,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -879,14 +927,14 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppTheme.primaryBlue,
                       elevation: 0,
-                      side: const BorderSide(color: Color(0xFF334155)),
+                      side: const BorderSide(color: Color(0xFFCBD5E1)),
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.arrow_back_ios, size: 14),
+                        Icon(Icons.arrow_back_ios, size: 12),
                         SizedBox(width: 4),
                         Text('Önceki'),
                       ],
@@ -906,7 +954,7 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
                         const SizedBox(width: 4),
                         Icon(
                           _currentQuestionIndex == _questions.length - 1 ? Icons.exit_to_app : Icons.arrow_forward_ios,
-                          size: 14,
+                          size: 12,
                         ),
                       ],
                     ),
@@ -916,24 +964,33 @@ class _ExamRoomPageState extends State<ExamRoomPage> with WidgetsBindingObserver
             ),
           ),
 
-          // Floating Kamera Önizlemesi (Sağ Üstte)
+          // Sürüklenebilir Floating Kamera Önizlemesi (Altın Kenarlıklı)
           if (_isCameraInitialized && _cameraController != null)
             Positioned(
-              top: 10,
-              right: 10,
-              child: Container(
-                width: 72,
-                height: 96,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.accentGold, width: 1.5),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black45, blurRadius: 8, offset: Offset(0, 4)),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: CameraPreview(_cameraController!),
+              left: _cameraLeft,
+              top: _cameraTop,
+              child: GestureDetector(
+                onPanUpdate: (details) {
+                  setState(() {
+                    final size = MediaQuery.of(context).size;
+                    _cameraLeft = (_cameraLeft + details.delta.dx).clamp(0.0, size.width - 72.0);
+                    _cameraTop = (_cameraTop + details.delta.dy).clamp(0.0, size.height - 180.0);
+                  });
+                },
+                child: Container(
+                  width: 72,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.accentGold, width: 2.0),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: CameraPreview(_cameraController!),
+                  ),
                 ),
               ),
             ),

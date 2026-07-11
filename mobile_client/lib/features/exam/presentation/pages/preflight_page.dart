@@ -36,7 +36,6 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Kullanıcı ayarlara gidip izin verip dönerse tekrar kontrol et
     if (state == AppLifecycleState.resumed) {
       _checkPermissions();
     }
@@ -79,10 +78,12 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
-        title: Text('$permissionName İzni Gerekli'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        title: Text('$permissionName İzni Gerekli', style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
         content: Text(
           'Sınav gözetimi için $permissionName izni kalıcı olarak reddedilmiş. Lütfen ayarlardan izin verin.',
+          style: const TextStyle(color: AppTheme.textSecondary),
         ),
         actions: [
           TextButton(
@@ -94,7 +95,7 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
               Navigator.of(ctx).pop();
               openAppSettings();
             },
-            child: const Text('Ayarları Aç', style: TextStyle(color: AppTheme.accentGold, fontWeight: FontWeight.bold)),
+            child: const Text('Ayarları Aç', style: TextStyle(color: AppTheme.primaryBlue, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -106,11 +107,12 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
     final allGranted = _cameraPermissionGranted && _microphonePermissionGranted;
 
     return Scaffold(
+      backgroundColor: AppTheme.bgLight,
       appBar: AppBar(
         title: const Text('Sınav Giriş Kontrolü'),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.accentGold))
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryBlue))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -120,21 +122,28 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppTheme.surfaceDark,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF334155), width: 0.8),
+                      border: Border.all(color: const Color(0xFFE2E8F0), width: 1.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           widget.exam.title,
-                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(Icons.timer_outlined, color: AppTheme.accentGold, size: 14),
+                            const Icon(Icons.timer_outlined, color: AppTheme.primaryBlue, size: 16),
                             const SizedBox(width: 6),
                             Text(
                               'Süre: ${widget.exam.duration} Dakika',
@@ -150,7 +159,7 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
                   const Text(
                     'GEREKLİ İZİNLER VE DONANIM KONTROLÜ',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppTheme.primaryNavy,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
@@ -180,16 +189,16 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppTheme.errorRed.withValues(alpha: 0.08),
+                      color: AppTheme.errorRed.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.errorRed.withValues(alpha: 0.2)),
+                      border: Border.all(color: AppTheme.errorRed.withValues(alpha: 0.15)),
                     ),
                     child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.warning_amber_rounded, color: AppTheme.errorRed, size: 18),
+                            Icon(Icons.warning_amber_rounded, color: AppTheme.errorRed, size: 20),
                             SizedBox(width: 8),
                             Text(
                               'Önemli Güvenlik Kuralları',
@@ -245,8 +254,8 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
                           }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: allGranted ? AppTheme.successGreen : Colors.grey[700],
-                      foregroundColor: Colors.white,
+                      backgroundColor: allGranted ? AppTheme.successGreen : Colors.grey[300],
+                      foregroundColor: allGranted ? Colors.white : Colors.grey[600],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -272,12 +281,18 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isGranted ? AppTheme.successGreen.withValues(alpha: 0.3) : const Color(0xFF334155),
+          color: isGranted ? AppTheme.successGreen.withValues(alpha: 0.3) : const Color(0xFFE2E8F0),
           width: isGranted ? 1.2 : 0.8,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 5,
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -293,7 +308,7 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
               children: [
                 Text(
                   title,
-                  style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -308,6 +323,7 @@ class _PreflightPageState extends State<PreflightPage> with WidgetsBindingObserv
               onPressed: onRequest,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.accentGold,
+                foregroundColor: AppTheme.primaryNavy,
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),

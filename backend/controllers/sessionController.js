@@ -118,6 +118,13 @@ exports.endSession = async (req, res) => {
 exports.getSessionById = async (req, res) => {
     try {
         const sessionId = parseInt(req.params.sessionId);
+        
+        // Gözetim Canlı Takip: Öğrencinin aktifliğini hafızada güncelle
+        if (!global.lastActiveSessionPings) {
+            global.lastActiveSessionPings = {};
+        }
+        global.lastActiveSessionPings[sessionId] = Date.now();
+
         const session = await prisma.examSession.findUnique({
             where: { id: sessionId },
             select: { 

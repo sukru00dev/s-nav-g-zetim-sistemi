@@ -11,11 +11,16 @@ import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'features/exam/data/repositories/exam_repository.dart';
 import 'features/exam/presentation/cubit/exam_cubit.dart';
 
+import 'package:intl/date_symbol_data_local.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Yerel veri tabanı (SharedPreferences) başlangıç kurulumu
   await LocalDbManager.init();
+
+  // Türkçe tarih formatlama desteğini başlat
+  await initializeDateFormatting('tr_TR', null);
 
   runApp(const MyApp());
 }
@@ -48,7 +53,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'LEUKOLION',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.darkTheme,
+          theme: AppTheme.lightTheme,
           initialRoute: '/',
           routes: {
             '/': (context) => const AuthGate(),

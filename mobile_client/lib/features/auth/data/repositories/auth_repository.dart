@@ -120,4 +120,30 @@ class AuthRepository {
     final token = await _storage.read(key: 'auth_token');
     return token != null;
   }
+
+  // Şifre Sıfırlama Bağlantısı Gönder (Forgot Password)
+  Future<String> forgotPassword({
+    required String tcKimlik,
+    required String forename,
+    required String surname,
+    required String yearOfBirth,
+    required String email,
+  }) async {
+    try {
+      final response = await _client.post(
+        ApiConstants.forgotPassword,
+        data: {
+          'tc_kimlik': tcKimlik,
+          'forename': forename,
+          'surname': surname,
+          'yearOfBirth': yearOfBirth,
+          'email': email,
+        },
+      );
+      final data = response.data as Map<String, dynamic>;
+      return data['message'] as String? ?? 'Şifre sıfırlama bağlantısı e-postanıza gönderildi.';
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

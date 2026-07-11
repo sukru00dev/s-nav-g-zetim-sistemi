@@ -21,8 +21,8 @@ class UserModel {
       username: json['username'] as String,
       email: json['email'] as String,
       role: json['role'] as String,
-      forename: json['forename'] as String,
-      surname: json['surname'] as String,
+      forename: json['forename'] as String? ?? '',
+      surname: json['surname'] as String? ?? '',
     );
   }
 

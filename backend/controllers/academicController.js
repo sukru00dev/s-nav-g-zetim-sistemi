@@ -22,15 +22,52 @@ exports.getLiveMonitorData = async (req, res) => {
             include: {
                 user: { select: { forename: true, surname: true, tc_kimlik: true, photo: true } },
                 exam: { select: { title: true } },
+                answers: { select: { id: true } },
+                faces: { orderBy: { id: 'desc' }, take: 1 },
+                eyes: { orderBy: { id: 'desc' }, take: 1 },
+                screens: { orderBy: { id: 'desc' }, take: 1 },
+                voices: { orderBy: { id: 'desc' }, take: 1 },
                 logs: {
                     orderBy: { timestamp: 'desc' },
-                    take: 5
+                    take: 15
                 }
             },
             orderBy: { startTime: 'desc' }
         });
 
-        res.json(liveSessions);
+        const sessionsWithOnlineStatus = await Promise.all(liveSessions.map(async (session) => {
+            const lastPing = global.lastActiveSessionPings ? global.lastActiveSessionPings[session.id] : null;
+            const isOnline = lastPing ? (Date.now() - lastPing < 12000) : false; // 12 saniye eşiği
+
+            // Sınav sorularını id sırasına göre çekip soru numaralarını belirle
+            const examQuestions = await prisma.question.findMany({
+                where: { examId: session.examId },
+                orderBy: { id: 'asc' },
+                select: { id: true }
+            });
+
+            const mapBiometric = (items) => {
+                if (!items || items.length === 0) return items;
+                return items.map(item => {
+                    const qIndex = examQuestions.findIndex(q => q.id === item.questionId);
+                    return {
+                        ...item,
+                        questionNumber: qIndex !== -1 ? qIndex + 1 : '?'
+                    };
+                });
+            };
+
+            return {
+                ...session,
+                isOnline,
+                faces: mapBiometric(session.faces),
+                eyes: mapBiometric(session.eyes),
+                screens: mapBiometric(session.screens),
+                voices: mapBiometric(session.voices)
+            };
+        }));
+
+        res.json(sessionsWithOnlineStatus);
     } catch (error) {
         console.error("Error in getLiveMonitorData:", error);
         res.status(500).json({ message: 'Gözetim verileri getirilemedi' });

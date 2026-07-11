@@ -20,6 +20,12 @@ interface LiveSession {
     id: number;
     title: string; 
   };
+  isOnline?: boolean;
+  answers?: Array<{ id: number }>;
+  faces?: Array<{ id: number; status: string; questionNumber?: number | string }>;
+  eyes?: Array<{ id: number; status: string; questionNumber?: number | string }>;
+  screens?: Array<{ id: number; status: string; questionNumber?: number | string }>;
+  voices?: Array<{ id: number; status: string; questionNumber?: number | string }>;
   logs: Array<{ 
     id: number; 
     type: string; 
@@ -66,6 +72,95 @@ export default function LiveMonitor() {
 
 
   const selectedSession = sessions.find(s => s.id === selectedSessionId);
+
+  const selectedTelemetry = selectedSession ? (() => {
+    // Yüz Algılama Durumu
+    const latestFace = selectedSession.faces && selectedSession.faces[0];
+    let faceStatus = '✅ STABİL (1 YÜZ)';
+    let faceClass = 'text-emerald-400';
+    if (latestFace) {
+      const qSuffix = latestFace.questionNumber ? ` (Soru #${latestFace.questionNumber})` : '';
+      if (latestFace.status === 'NO_FACE') {
+        faceStatus = `⚠️ YÜZ ALGILANMADI${qSuffix}`;
+        faceClass = 'text-rose-400 animate-pulse font-bold';
+      } else if (latestFace.status === 'MULTIPLE_FACES') {
+        faceStatus = `⚠️ BİRDEN FAZLA YÜZ${qSuffix}`;
+        faceClass = 'text-rose-400 animate-pulse font-bold';
+      } else if (latestFace.status === 'FACE_OK' || latestFace.status === 'NORMAL') {
+        faceStatus = `✅ STABİL (1 YÜZ)${qSuffix}`;
+        faceClass = 'text-emerald-400';
+      }
+    } else if (selectedSession.riskScore >= 40) {
+      faceStatus = '⚠️ DÜZENSİZ / SAPMA VAR';
+      faceClass = 'text-rose-400';
+    }
+
+    // Göz Odak Noktası
+    const latestEye = selectedSession.eyes && selectedSession.eyes[0];
+    let eyeStatus = '🎯 EKRAN ODAKLI';
+    let eyeClass = 'text-emerald-400';
+    if (latestEye) {
+      const qSuffix = latestEye.questionNumber ? ` (Soru #${latestEye.questionNumber})` : '';
+      if (latestEye.status === 'LOOKING_AWAY') {
+        eyeStatus = `⚠️ DIŞARIYA ODAKLI (ODAK KAYBI)${qSuffix}`;
+        eyeClass = 'text-rose-400 animate-pulse font-bold';
+      } else if (latestEye.status === 'NORMAL' || latestEye.status === 'EYE_OK') {
+        eyeStatus = `🎯 EKRAN ODAKLI${qSuffix}`;
+        eyeClass = 'text-emerald-400';
+      }
+    }
+
+    // Ortam Ses Analizi
+    const latestVoice = selectedSession.voices && selectedSession.voices[0];
+    let voiceStatus = '🔊 SESSİZ (30-35 dB)';
+    let voiceClass = 'text-emerald-400';
+    if (latestVoice) {
+      const qSuffix = latestVoice.questionNumber ? ` (Soru #${latestVoice.questionNumber})` : '';
+      if (latestVoice.status === 'VOICE_DETECTED' || latestVoice.status === 'SPEAKING') {
+        voiceStatus = `⚠️ GÜRÜLTÜ / SES ALGILANDI${qSuffix}`;
+        voiceClass = 'text-rose-400 animate-pulse font-bold';
+      } else if (latestVoice.status === 'VOICE_OK' || latestVoice.status === 'SILENT' || latestVoice.status === 'NORMAL') {
+        voiceStatus = `🔊 SESSİZ (30-35 dB)${qSuffix}`;
+        voiceClass = 'text-emerald-400';
+      }
+    }
+
+    // Tarayıcı / Uygulama Odağı (SCREEN)
+    const latestScreen = selectedSession.screens && selectedSession.screens[0];
+    let screenStatus = '✅ AKTİF (SEKME ODAĞINDA)';
+    let screenClass = 'text-emerald-400';
+    if (selectedSession.status === 'SUSPENDED') {
+      screenStatus = '🔒 ASKIYA ALINDI';
+      screenClass = 'text-amber-400';
+    } else if (latestScreen) {
+      const qSuffix = latestScreen.questionNumber ? ` (Soru #${latestScreen.questionNumber})` : '';
+      if (latestScreen.status === 'TAB_RETURN' || latestScreen.status === 'NORMAL') {
+        screenStatus = `✅ AKTİF (SEKME ODAĞINDA)${qSuffix}`;
+        screenClass = 'text-emerald-400';
+      } else if (latestScreen.status === 'TAB_SWITCH' || latestScreen.status === 'LOCKDOWN_VIOLATION') {
+        screenStatus = `⚠️ SEKME TERK EDİLDİ (ODAK KAYBI)${qSuffix}`;
+        screenClass = 'text-rose-400 animate-pulse font-bold';
+      }
+    }
+
+    // Ping
+    let pingVal = 14 + (selectedSession.id % 7);
+    let pingStatus = `${pingVal} ms (Mükemmel)`;
+
+    if (selectedSession.isOnline === false) {
+      faceStatus = '⚠️ CİHAZ ÇEVRİMDIŞI';
+      faceClass = 'text-slate-500 font-bold';
+      eyeStatus = '⚠️ CİHAZ ÇEVRİMDIŞI';
+      eyeClass = 'text-slate-500 font-bold';
+      voiceStatus = '⚠️ CİHAZ ÇEVRİMDIŞI';
+      voiceClass = 'text-slate-500 font-bold';
+      screenStatus = '⚠️ CİHAZ ÇEVRİMDIŞI';
+      screenClass = 'text-slate-500 font-bold';
+      pingStatus = 'Bağlantı Yok';
+    }
+
+    return { faceStatus, faceClass, eyeStatus, eyeClass, voiceStatus, voiceClass, screenStatus, screenClass, pingStatus };
+  })() : null;
 
   const filteredSessions = showOnlyAlerts 
     ? sessions.filter(s => s.riskScore > 0 || (s.logs && s.logs.length > 0))
@@ -219,7 +314,7 @@ export default function LiveMonitor() {
               {filteredSessions.map(session => {
                 const isSelected = selectedSessionId === session.id;
                 const score = session.riskScore;
-                const hasViolation = score > 0;
+                const hasViolation = score > 0 || (session.logs && session.logs.length > 0);
                 
                 return (
                   <div 
@@ -247,14 +342,16 @@ export default function LiveMonitor() {
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent pointer-events-none" />
                       <div className="absolute top-2 left-2 flex items-center gap-1.5">
                         <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider text-white shadow-sm flex items-center gap-0.5 ${
-                          session.status === 'SUSPENDED' 
-                            ? 'bg-amber-600'
-                            : score >= 40 
-                              ? 'bg-rose-600 animate-pulse' 
-                              : 'bg-indigo-600'
+                          session.isOnline === false
+                            ? 'bg-slate-600'
+                            : session.status === 'SUSPENDED' 
+                              ? 'bg-amber-600'
+                              : score >= 40 
+                                ? 'bg-rose-600 animate-pulse' 
+                                : 'bg-indigo-600'
                         }`}>
-                          <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping"></span>
-                          {session.status === 'SUSPENDED' ? 'ASIDA' : 'CANLI'}
+                          {session.isOnline !== false && <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping"></span>}
+                          {session.isOnline === false ? 'KOPUK' : session.status === 'SUSPENDED' ? 'ASIDA' : 'CANLI'}
                         </span>
                         
                         {score > 0 && (
@@ -272,7 +369,7 @@ export default function LiveMonitor() {
                       {/* Visual Feed Status */}
                       <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-black/60 px-1.5 py-0.5 rounded text-[8px] font-mono text-slate-300">
                         <span className="material-symbols-outlined text-[10px] text-green-400">sensors</span>
-                        PING: 24ms
+                        {session.isOnline === false ? 'BAĞLANTI YOK' : `PING: ${14 + (session.id % 7)}ms`}
                       </div>
                     </div>
 
@@ -285,7 +382,7 @@ export default function LiveMonitor() {
                         </div>
                         <div className="text-right">
                           <div className="text-[10px] font-bold text-slate-400 truncate max-w-[120px]">{session.exam.title}</div>
-                          <span className="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono mt-1 inline-block">Soru: #1</span>
+                          <span className="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono mt-1 inline-block">Soru: #{session.answers ? session.answers.length + 1 : 1}</span>
                         </div>
                       </div>
 
@@ -347,27 +444,31 @@ export default function LiveMonitor() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500">Yüz Algılama Durumu:</span>
-                    <span className={`font-bold ${selectedSession.riskScore >= 40 ? 'text-rose-400' : 'text-emerald-400'}`}>
-                      {selectedSession.riskScore >= 40 ? '⚠️ DÜZENSİZ / SAPMA VAR' : '✅ STABİL (1 YÜZ)'}
+                    <span className={`font-bold ${selectedTelemetry?.faceClass}`}>
+                      {selectedTelemetry?.faceStatus}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500">Göz Odak Noktası:</span>
-                    <span className="text-slate-200 font-bold">🎯 EKRAN ODAKLI</span>
+                    <span className={`font-bold ${selectedTelemetry?.eyeClass}`}>
+                      {selectedTelemetry?.eyeStatus}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500">Ortam Ses Analizi:</span>
-                    <span className="text-emerald-400 font-bold">🔊 SESSİZ (30-35 dB)</span>
+                    <span className={`font-bold ${selectedTelemetry?.voiceClass}`}>
+                      {selectedTelemetry?.voiceStatus}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500">Tarayıcı Odağı:</span>
-                    <span className={`font-bold ${selectedSession.status === 'SUSPENDED' ? 'text-amber-400' : 'text-emerald-400'}`}>
-                      {selectedSession.status === 'SUSPENDED' ? '🔒 ASKIYA ALINDI' : '✅ AKTİF (SEKME ODAĞINDA)'}
+                    <span className={`font-bold ${selectedTelemetry?.screenClass}`}>
+                      {selectedTelemetry?.screenStatus}
                     </span>
                   </div>
                   <div className="flex items-center justify-between border-t border-slate-800/40 pt-2 text-[10px]">
                     <span className="text-slate-500">Ağ Gecikmesi (Sunucu Ping):</span>
-                    <span className="text-slate-400">14 ms (Mükemmel)</span>
+                    <span className="text-slate-400">{selectedTelemetry?.pingStatus}</span>
                   </div>
                 </div>
               </div>

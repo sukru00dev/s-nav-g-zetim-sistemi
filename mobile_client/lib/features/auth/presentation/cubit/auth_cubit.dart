@@ -101,4 +101,28 @@ class AuthCubit extends Cubit<AuthState> {
   void resetToLogin() {
     emit(AuthUnauthenticated());
   }
+
+  // Şifremi Unuttum (Forgot Password)
+  Future<void> forgotPassword({
+    required String tcKimlik,
+    required String forename,
+    required String surname,
+    required String yearOfBirth,
+    required String email,
+  }) async {
+    emit(AuthLoading());
+    try {
+      final message = await _repository.forgotPassword(
+        tcKimlik: tcKimlik,
+        forename: forename,
+        surname: surname,
+        yearOfBirth: yearOfBirth,
+        email: email,
+      );
+      // Başarılı bildirim göstermek için AuthRegisterSuccess durumunu tetikliyoruz
+      emit(AuthRegisterSuccess(email: email, message: message));
+    } catch (e) {
+      emit(AuthError(e.toString().replaceAll('Exception: ', '')));
+    }
+  }
 }
