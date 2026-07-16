@@ -1,9 +1,21 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Webcam from 'react-webcam';
-import * as faceapi from 'face-api.js';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+
+// ──────────────────────────────────────────────
+// MediaPipe Globals Declarations for TypeScript
+// ──────────────────────────────────────────────
+declare global {
+  interface Window {
+    FaceMesh: any;
+    Camera: any;
+    drawConnectors: any;
+    FACEMESH_TESSELATION: any;
+    FACEMESH_IRISES: any;
+  }
+}
 import ConditionalQuestion from '../../components/exam/ConditionalQuestion';
 
 // ──────────────────────────────────────────────
@@ -77,6 +89,24 @@ export default function ExamRoom() {
 
   // Gözetim
   const webcamRef    = useRef<Webcam>(null);
+  const canvasRef    = useRef<HTMLCanvasElement>(null);
+  const faceMeshRef  = useRef<any>(null);
+  const cameraInstanceRef = useRef<any>(null);
+
+  // Zaman Tabanlı İhlal Zamanlayıcı Refs
+  const faceLostStartRef = useRef<number | null>(null);
+  const multipleFacesStartRef = useRef<number | null>(null);
+  const headTurnedStartRef = useRef<number | null>(null);
+  const eyeWanderedStartRef = useRef<number | null>(null);
+
+  // Kimlik Doğrulama Aşaması
+  const [isIdentityVerified, setIsIdentityVerified] = useState(false);
+  const isIdentityVerifiedRef = useRef(isIdentityVerified);
+  useEffect(() => {
+    isIdentityVerifiedRef.current = isIdentityVerified;
+  }, [isIdentityVerified]);
+  const [verificationProgress, setVerificationProgress] = useState(0);
+
   const [status, setStatus]               = useState<Status>('loading-models');
   const [warnings, setWarnings]           = useState<string[]>([]);
   const [faceOk, setFaceOk]              = useState(true);
@@ -210,21 +240,22 @@ export default function ExamRoom() {
       });
   }, [sessionId, token]);
 
-  // ── Face API modellerini yükle ─────────────────────────────
+  // ── MediaPipe Kütüphanelerinin Hazır Olmasını Bekle ─────────────────────────────
   useEffect(() => {
     if (!examData?.isSupervised) return;
-    const URI = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
-    Promise.all([
-      faceapi.nets.tinyFaceDetector.loadFromUri(URI),
-      faceapi.nets.faceLandmark68Net.loadFromUri(URI),
-    ]).then(() => {
+    if (window.FaceMesh) {
       setModelsLoaded(true);
       setStatus('ready');
-    }).catch(err => {
-      console.error('AI modeli yüklenemedi:', err);
-      // Modeller yüklenmese bile devam et
-      setStatus('ready');
-    });
+    } else {
+      const checkInterval = setInterval(() => {
+        if (window.FaceMesh) {
+          setModelsLoaded(true);
+          setStatus('ready');
+          clearInterval(checkInterval);
+        }
+      }, 500);
+      return () => clearInterval(checkInterval);
+    }
   }, [examData?.isSupervised]);
 
   // ── Canlı oturum durumu ve uyarı takibi (Poller) ────────────
@@ -258,28 +289,213 @@ export default function ExamRoom() {
 
 
 
-  // ── Kamera analiz döngüsü ───────────────────────────────────
+  // ── MediaPipe FaceMesh analiz döngüsü ───────────────────────────────────
   useEffect(() => {
     if (!modelsLoaded || status !== 'in-progress') return;
-    const interval = setInterval(async () => {
-      if (!webcamRef.current?.video || webcamRef.current.video.readyState < 4) return;
-      const detections = await faceapi
-        .detectAllFaces(webcamRef.current.video, new faceapi.TinyFaceDetectorOptions())
-        .withFaceLandmarks();
 
-      if (detections.length === 0) {
-        setFaceOk(false);
-        addWarning('⚠️ Yüzünüz kamerada görünmüyor!');
-        logEventRef.current('FACE', 'NO_FACE');
-      } else if (detections.length > 1) {
-        setFaceOk(false);
-        addWarning('⚠️ Kamerada birden fazla kişi tespit edildi!');
-        logEventRef.current('FACE', 'MULTIPLE_FACES');
-      } else {
-        setFaceOk(true);
+    const canvasElement = canvasRef.current;
+    const canvasCtx = canvasElement?.getContext('2d');
+
+    const onResults = (results: any) => {
+      if (!canvasCtx || !canvasElement) return;
+
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      
+      // Çizim işlemi (Ayna efekti olduğu için yatayda ters çevirip çizelim)
+      canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+      try {
+        const faceCount = results.multiFaceLandmarks ? results.multiFaceLandmarks.length : 0;
+
+        // 1. Çoklu Yüz Kontrolü (Zaman tabanlı)
+        if (faceCount > 1) {
+          if (!multipleFacesStartRef.current) {
+            multipleFacesStartRef.current = Date.now();
+          } else if (Date.now() - multipleFacesStartRef.current >= 1000) {
+            setFaceOk(false);
+            addWarning('⚠️ Kamerada birden fazla kişi tespit edildi!');
+            logEventRef.current('FACE', 'MULTIPLE_FACES');
+            multipleFacesStartRef.current = Date.now(); // Tekrar log yağmurunu engellemek için zamanı güncelle
+          }
+        } else {
+          multipleFacesStartRef.current = null;
+        }
+
+        // 2. Yüz Kaybolma Kontrolü (Zaman tabanlı)
+        if (faceCount === 0) {
+          if (!faceLostStartRef.current) {
+            faceLostStartRef.current = Date.now();
+          } else if (Date.now() - faceLostStartRef.current >= 2000) {
+            setFaceOk(false);
+            addWarning('⚠️ Yüzünüz kamerada görünmüyor!');
+            logEventRef.current('FACE', 'NO_FACE');
+            faceLostStartRef.current = Date.now(); // Zamanı güncelle
+          }
+        } else {
+          faceLostStartRef.current = null;
+        }
+
+        // 3. Tek kişi varsa ve normal durumdaysa faceOk set edelim
+        if (faceCount === 1) {
+          setFaceOk(true);
+        }
+
+        // 4. Kimlik Doğrulama Aşaması
+        if (!isIdentityVerifiedRef.current) {
+          if (faceCount === 1) {
+            setVerificationProgress(prev => {
+              const next = prev + 2.5; // Yaklaşık 1.3-1.5 saniyede doğrulamayı tamamlar
+              if (next >= 100) {
+                setIsIdentityVerified(true);
+                return 100;
+              }
+              return next;
+            });
+          }
+          canvasCtx.restore();
+          return;
+        }
+
+        // 5. Kafa ve Göz Takibi (Sadece tek kişi varken çalışsın)
+        if (faceCount === 1) {
+          const face = results.multiFaceLandmarks[0];
+
+          // FaceMesh Çizimi (Yüz Ağı)
+          if (window.drawConnectors) {
+            if (window.FACEMESH_TESSELATION) {
+              window.drawConnectors(canvasCtx, face, window.FACEMESH_TESSELATION, { 
+                color: '#00FF0020', 
+                lineWidth: 1 
+              });
+            }
+            if (window.FACEMESH_IRISES) {
+              window.drawConnectors(canvasCtx, face, window.FACEMESH_IRISES, { 
+                color: '#FF0000', 
+                lineWidth: 2 
+              });
+            }
+          }
+
+          // KAFA HAREKETİ HESAPLAMA (Burun - Yanak mesafeleri)
+          const nose = face[1];
+          const leftCheek = face[234];
+          const rightCheek = face[454];
+          const headRatio = Math.abs(rightCheek.x - nose.x) / (Math.abs(nose.x - leftCheek.x) + 0.0001);
+
+          let isHeadTurned = false;
+          let headDirection = "";
+
+          if (headRatio > 1.5) {
+            isHeadTurned = true;
+            headDirection = "SOLA";
+          } else if (headRatio < 0.6) {
+            isHeadTurned = true;
+            headDirection = "SAĞA";
+          }
+
+          if (isHeadTurned) {
+            if (!headTurnedStartRef.current) {
+              headTurnedStartRef.current = Date.now();
+            } else if (Date.now() - headTurnedStartRef.current >= 1000) {
+              addWarning(`⚠️ Başınızı çok fazla ${headDirection} yönüne çevirdiniz!`);
+              logEventRef.current('EYE', 'LOOKING_AWAY');
+              headTurnedStartRef.current = Date.now();
+            }
+          } else {
+            headTurnedStartRef.current = null;
+          }
+
+          // GÖZ BAKMA HESAPLAMA (İris - Göz pınarı mesafesi)
+          if (!isHeadTurned) {
+            const leftEyeInner = face[133];
+            const leftEyeOuter = face[33];
+            const iris = face[468];
+            const eyeWidth = Math.abs(leftEyeInner.x - leftEyeOuter.x);
+            const irisPosition = Math.abs(iris.x - leftEyeOuter.x) / (eyeWidth + 0.0001);
+
+            let isEyeWandering = false;
+            let eyeDirection = "";
+
+            if (irisPosition > 0.55) {
+              isEyeWandering = true;
+              eyeDirection = "SAĞA DIŞARI";
+            } else if (irisPosition < 0.45) {
+              isEyeWandering = true;
+              eyeDirection = "SOLA DIŞARI";
+            }
+
+            if (isEyeWandering) {
+              if (!eyeWanderedStartRef.current) {
+                eyeWanderedStartRef.current = Date.now();
+              } else if (Date.now() - eyeWanderedStartRef.current >= 1000) {
+                addWarning(`⚠️ Göz odağınız ekran dışına (${eyeDirection}) kaydı!`);
+                logEventRef.current('EYE', 'LOOKING_AWAY');
+                eyeWanderedStartRef.current = Date.now();
+              }
+            } else {
+              eyeWanderedStartRef.current = null;
+            }
+          } else {
+            eyeWanderedStartRef.current = null;
+          }
+        }
+      } catch (err) {
+        console.warn("Yapay zeka analiz hatası:", err);
       }
-    }, 4000);
-    return () => clearInterval(interval);
+
+      canvasCtx.restore();
+    };
+
+    // FaceMesh Modelini Kur
+    const faceMesh = new window.FaceMesh({
+      locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces: 2,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults(onResults);
+    faceMeshRef.current = faceMesh;
+
+    // Kamera akışını bağla
+    let camera: any = null;
+    if (webcamRef.current?.video) {
+      camera = new window.Camera(webcamRef.current.video, {
+        onFrame: async () => {
+          if (webcamRef.current?.video) {
+            if (canvasElement && webcamRef.current.video.videoWidth) {
+              canvasElement.width = webcamRef.current.video.videoWidth;
+              canvasElement.height = webcamRef.current.video.videoHeight;
+            }
+            try {
+              await faceMesh.send({ image: webcamRef.current.video });
+            } catch (err) {
+              // Hata yok sayılır
+            }
+          }
+        },
+        width: 640,
+        height: 480
+      });
+      camera.start().catch((err: any) => {
+        console.error("MediaPipe Kamera başlatılamadı:", err);
+      });
+      cameraInstanceRef.current = camera;
+    }
+
+    return () => {
+      if (cameraInstanceRef.current) {
+        try { cameraInstanceRef.current.stop(); } catch (e) {}
+      }
+      if (faceMeshRef.current) {
+        try { faceMeshRef.current.close(); } catch (e) {}
+      }
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelsLoaded, status]);
 
@@ -289,7 +505,7 @@ export default function ExamRoom() {
 
     let audioContext: AudioContext | null = null;
     let mediaStream: MediaStream | null = null;
-    let interval: NodeJS.Timeout | null = null;
+    let interval: any = null;
 
     const startAudioAnalysis = async () => {
       try {
@@ -828,19 +1044,52 @@ export default function ExamRoom() {
         <div className="space-y-4">
           {/* Kamera */}
           {examData?.isSupervised && (
-            <div className="bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-lg fixed bottom-4 right-4 w-28 sm:w-40 z-40 lg:relative lg:bottom-0 lg:right-0 lg:w-full lg:z-0">
-              <div className="hidden lg:flex items-center justify-between px-4 py-3 border-b border-slate-800">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-2">
-                  <span className="w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
-                  Canlı Gözetim
-                </span>
-              </div>
-              <div className="relative aspect-video bg-black">
+            <div className={
+              !isIdentityVerified 
+                ? "fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center p-6 transition-all duration-1000 ease-in-out"
+                : "bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-lg fixed bottom-4 right-4 w-32 sm:w-44 z-40 lg:relative lg:bottom-0 lg:right-0 lg:w-full lg:z-0 transition-all duration-1000 ease-in-out"
+            }>
+              {!isIdentityVerified ? (
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-md p-6 text-center space-y-6">
+                  <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                  <div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Kimlik Doğrulanıyor...</h2>
+                    <p className="text-slate-400 text-sm max-w-sm">
+                      Sınav güvenliğiniz için lütfen 3 saniye boyunca kameraya düz bir şekilde bakınız.
+                    </p>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-64 h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700 shadow-inner">
+                    <div 
+                      className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-150"
+                      style={{ width: `${verificationProgress}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-indigo-400 font-mono font-bold">
+                    {Math.round(verificationProgress)}% Tamamlandı
+                  </span>
+                </div>
+              ) : (
+                <div className="hidden lg:flex items-center justify-between px-4 py-3 border-b border-slate-800">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-2">
+                    <span className="w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
+                    Canlı Gözetim
+                  </span>
+                </div>
+              )}
+              
+              <div className="relative aspect-video bg-black w-full overflow-hidden">
                 <Webcam
                   ref={webcamRef}
                   audio={false}
                   mirrored
                   className="w-full h-full object-cover"
+                  videoConstraints={{ width: 640, height: 480 }}
+                />
+                <canvas
+                  ref={canvasRef}
+                  className="absolute inset-0 w-full h-full object-cover transform scale-x-[-1] pointer-events-none"
                 />
                 {!faceOk && (
                   <div className="absolute inset-0 border-2 lg:border-4 border-rose-500 animate-pulse pointer-events-none rounded-sm" />
